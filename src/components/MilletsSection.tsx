@@ -165,72 +165,145 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
           </div>
         </div>
 
-        {/* Millet Types Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
-          {/* Loading Skeleton for Featured Article */}
-          {isLoading && (
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg">
-                {/* Loading badge */}
-                <div className="absolute top-4 left-4 z-10 bg-gray-300 animate-pulse rounded-full px-3 py-1">
-                  <div className="h-4 w-20 bg-gray-400 rounded"></div>
-                </div>
-                
-                {/* Loading background */}
-                <div className="w-full h-64 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <div className="flex items-center mb-2">
-                    <div className="w-4 h-4 bg-gray-400 rounded mr-2 animate-pulse"></div>
-                    <div className="h-3 w-16 bg-gray-400 rounded animate-pulse"></div>
-                  </div>
-                  <div className="h-6 w-3/4 bg-gray-400 rounded mb-2 animate-pulse"></div>
-                  <div className="h-4 w-full bg-gray-400 rounded mb-2 animate-pulse"></div>
-                  <div className="flex items-center justify-between">
-                    <div className="h-3 w-20 bg-gray-400 rounded animate-pulse"></div>
-                    <div className="w-4 h-4 bg-gray-400 rounded animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Featured Article Card (First Position) */}
-          {!isLoading && milletArticles.length > 0 && (
-            <Link key="featured-article" href={`/articles/${milletArticles[0].slug}`}>
-              <div className="group cursor-pointer">
-                <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                  {/* Article Badge */}
-                  <div className="absolute top-4 left-4 z-10 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Featured Article
-                  </div>
-                  
-                  {/* Background gradient matching millets theme */}
-                  <div className="w-full h-64 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-400"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  
-                  <div className="absolute bottom-6 left-6 right-6 text-white">
-                    <div className="flex items-center mb-2">
-                      <BookOpen size={16} className="mr-2" />
-                      <span className="text-xs opacity-80">
-                        {milletArticles[0].readingTime || 5} min read
-                      </span>
-                    </div>
-                    <h3 className="text-xl mb-2 line-clamp-2">{milletArticles[0].title}</h3>
-                    <p className="text-sm opacity-90 mb-2 line-clamp-2">{milletArticles[0].excerpt}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs opacity-80">Latest Article</div>
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          )}
+        {/* Millet Nutritional Facts Section */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <div className="text-sm text-orange-500 font-medium mb-2">NUTRITION SCIENCE</div>
+            <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
+              Millet Nutritional Facts
+            </h3>
+            <p className="text-lg opacity-80 max-w-3xl mx-auto">
+              Discover the scientific evidence behind these nutritional powerhouses and their impact on modern health.
+            </p>
+          </div>
 
-          {/* Regular Millet Types (Skip first if article exists, or show all if no article/loading) */}
-          {milletTypes.slice(!isLoading && milletArticles.length > 0 ? 1 : 0).map((millet, index) => (
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {/* Loading skeletons for nutritional fact cards */}
+            {isLoading && (
+              Array.from({length: 3}).map((_, index) => (
+                <div key={`skeleton-${index}`} className="rounded-2xl p-6 shadow-lg transition-all duration-300" style={{ backgroundColor: 'var(--color-millets-muted)' }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-millets-primary)' }}></div>
+                    <div className="text-xs font-medium animate-pulse" style={{ color: 'var(--color-millets-secondary)' }}>MILLETS</div>
+                  </div>
+                  <div className="h-32 bg-gray-200 rounded-xl mb-6 animate-pulse"></div>
+                  <div className="h-6 bg-gray-300 rounded mb-4 animate-pulse"></div>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="h-8 rounded mb-1 animate-pulse" style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="text-center">
+                      <div className="h-8 rounded mb-1 animate-pulse" style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="flex items-center">
+                        <div className="w-2 h-2 rounded-full mr-3 animate-pulse" style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
+                        <div className="h-4 bg-gray-200 rounded flex-1 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+
+            {/* Nutritional fact cards */}
+            {!isLoading && milletArticles.map((article, index) => {
+              if (!article.nutritionalData) return null;
+              
+              return (
+                <Link key={article.id} href={`/articles/${article.slug}`}>
+                  <div className="group cursor-pointer">
+                    <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 premium-image" 
+                         style={{ backgroundColor: 'var(--color-millets-muted)' }}>
+                      {/* Header with icon and label */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center" 
+                             style={{ backgroundColor: 'var(--color-millets-primary)' }}>
+                          <div className="w-4 h-4 bg-white rounded-full"></div>
+                        </div>
+                        <div className="text-xs font-medium subheading" 
+                             style={{ color: 'var(--color-millets-secondary)' }}>
+                          MILLETS
+                        </div>
+                      </div>
+
+                      {/* Image placeholder with sophisticated styling */}
+                      <div className="h-32 bg-gray-200 rounded-xl mb-6 flex items-center justify-center overflow-hidden">
+                        <div className="w-16 h-16 border-2 rounded flex items-center justify-center" 
+                             style={{ borderColor: 'var(--color-millets-secondary)' }}>
+                          <div className="w-8 h-8 border rounded" 
+                               style={{ borderColor: 'var(--color-millets-primary)' }}></div>
+                        </div>
+                      </div>
+
+                      {/* Title with proper typography */}
+                      <h4 className="text-lg font-semibold mb-4 line-clamp-2" 
+                          style={{ 
+                            color: 'var(--color-millets-text)',
+                            fontFamily: 'var(--font-primary)'
+                          }}>
+                        {article.title}
+                      </h4>
+
+                      {/* Metrics with enhanced styling */}
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold mb-1" 
+                               style={{ 
+                                 color: 'var(--color-millets-secondary)',
+                                 fontFamily: 'var(--font-display)'
+                               }}>
+                            {article.nutritionalData.metric1?.value || 'N/A'}
+                          </div>
+                          <div className="text-xs" 
+                               style={{ color: 'var(--color-millets-text)' }}>
+                            {article.nutritionalData.metric1?.label || 'Metric 1'}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold mb-1" 
+                               style={{ 
+                                 color: 'var(--color-millets-secondary)',
+                                 fontFamily: 'var(--font-display)'
+                               }}>
+                            {article.nutritionalData.metric2?.value || 'N/A'}
+                          </div>
+                          <div className="text-xs" 
+                               style={{ color: 'var(--color-millets-text)' }}>
+                            {article.nutritionalData.metric2?.label || 'Metric 2'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Key Benefits with bullet styling */}
+                      <div className="space-y-2">
+                        {article.nutritionalData.keyBenefits?.slice(0, 3).map((benefit: any, benefitIndex: number) => (
+                          <div key={benefitIndex} className="flex items-center text-sm" 
+                               style={{ color: 'var(--color-millets-text)' }}>
+                            <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                                 style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
+                            <span className="line-clamp-1">{benefit.benefit}</span>
+                          </div>
+                        )) || Array.from({length: 3}).map((_, i) => (
+                          <div key={i} className="flex items-center text-sm" 
+                               style={{ color: 'var(--color-muted-foreground)' }}>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full mr-3"></div>
+                            <span>Benefit {i + 1}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+
+            {/* Show placeholder cards if no articles yet */}
+            {!isLoading && milletArticles.length === 0 && milletTypes.slice(0, 3).map((millet, index) => (
             <div key={index} className="group cursor-pointer">
               <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
                 <ImageWithFallback
@@ -249,7 +322,64 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                 </div>
               </div>
             </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Explore All Button */}
+          <div className="text-center">
+            <button 
+              className="px-8 py-3 border-2 rounded-full transition-all duration-300 hover:scale-105"
+              style={{ 
+                borderColor: 'var(--color-millets-secondary)',
+                color: 'var(--color-millets-secondary)',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-millets-muted)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              Explore All Millet Varieties
+            </button>
+          </div>
+        </div>
+
+        {/* Ancient Millets Collection Section */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
+              Ancient Millets Collection
+            </h3>
+            <p className="text-lg opacity-80 max-w-3xl mx-auto">
+              Rediscover the golden grains of our ancestors. These nutrient-dense superfoods are perfect for modern healthy living and sustainable nutrition.
+            </p>
+          </div>
+
+          {/* Traditional Millet Types Grid */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {milletTypes.map((millet, index) => (
+              <div key={index} className="group cursor-pointer">
+                <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                  <ImageWithFallback
+                    src={millet.image}
+                    alt={millet.name}
+                    className="w-full h-64 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 right-6 text-white">
+                    <h3 className="text-xl mb-2">{millet.name}</h3>
+                    <p className="text-sm opacity-90 mb-2">{millet.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs opacity-80">{millet.benefits}</div>
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Featured Recipes */}
@@ -301,42 +431,6 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
           ))}
         </div>
 
-        {/* Millet Articles */}
-        {milletArticles.length > 0 && (
-          <div className="mb-16">
-            <div className="text-center mb-12">
-              <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
-                Learn About Millets
-              </h3>
-              <p className="text-lg opacity-80">
-                Educational articles about the benefits and uses of ancient millets
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {milletArticles.slice(0, 3).map((article) => (
-                <Link key={article.id} href={`/articles/${article.slug}`}>
-                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105 cursor-pointer">
-                    <div className="p-6">
-                      <div className="flex items-center mb-3">
-                        <BookOpen size={20} style={{ color: 'var(--color-millets-secondary)' }} />
-                        <span className="ml-2 text-sm opacity-70">
-                          {article.readingTime || 5} min read
-                        </span>
-                      </div>
-                      <h4 className="text-lg font-semibold mb-3 line-clamp-2">{article.title}</h4>
-                      <p className="text-sm opacity-80 mb-4 line-clamp-3">{article.excerpt}</p>
-                      <div className="flex items-center justify-between text-xs opacity-60">
-                        <span>By {article.author}</span>
-                        <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* CTA */}
         <div className="text-center">

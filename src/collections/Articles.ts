@@ -62,6 +62,79 @@ export const Articles: CollectionConfig = {
       },
     },
     {
+      name: 'nutritionalData',
+      type: 'group',
+      admin: {
+        description: 'Nutritional facts for millet varieties',
+        condition: (data) => data.productLine === 'millets',
+      },
+      fields: [
+        {
+          name: 'metric1',
+          type: 'group',
+          fields: [
+            {
+              name: 'value',
+              type: 'text',  
+              required: true,
+              admin: {
+                description: 'e.g., "200mm", "344mg", "50"',
+              },
+            },
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'e.g., "Min Rainfall", "Calcium per 100g", "Glycemic Index"',
+              },
+            },
+          ],
+        },
+        {
+          name: 'metric2',
+          type: 'group',
+          fields: [
+            {
+              name: 'value',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'e.g., "46°C", "3.9mg", "12.3g"',
+              },
+            },
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'e.g., "Heat Tolerance", "Iron per 100g", "Protein per 100g"',
+              },
+            },
+          ],
+        },
+        {
+          name: 'keyBenefits',
+          type: 'array',
+          minRows: 3,
+          maxRows: 3,
+          admin: {
+            description: 'Exactly 3 key benefits/features',
+          },
+          fields: [
+            {
+              name: 'benefit',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'e.g., "Drought-resistant supercrop", "Superior to dairy for calcium"',
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'seo',
       type: 'group',
       fields: [

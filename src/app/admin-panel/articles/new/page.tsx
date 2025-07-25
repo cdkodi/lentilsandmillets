@@ -22,7 +22,22 @@ export default function NewArticlePage() {
     metaTitle: '',
     metaDescription: '',
     keywords: '',
-    status: 'draft'
+    status: 'draft',
+    nutritionalData: {
+      metric1: {
+        value: '',
+        label: ''
+      },
+      metric2: {
+        value: '',
+        label: ''
+      },
+      keyBenefits: [
+        { benefit: '' },
+        { benefit: '' },
+        { benefit: '' }
+      ]
+    }
   })
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -44,12 +59,37 @@ export default function NewArticlePage() {
     }
   }
 
+  const handleNutritionalChange = (metric: 'metric1' | 'metric2', field: 'value' | 'label', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      nutritionalData: {
+        ...prev.nutritionalData,
+        [metric]: {
+          ...prev.nutritionalData[metric],
+          [field]: value
+        }
+      }
+    }))
+  }
+
+  const handleBenefitChange = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      nutritionalData: {
+        ...prev.nutritionalData,
+        keyBenefits: prev.nutritionalData.keyBenefits.map((benefit, i) => 
+          i === index ? { benefit: value } : benefit
+        )
+      }
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const articleData = {
+      const articleData: any = {
         title: formData.title,
         slug: formData.slug,
         productLine: formData.productLine,
@@ -64,6 +104,11 @@ export default function NewArticlePage() {
         },
         status: formData.status,
         publishedAt: formData.status === 'published' ? new Date().toISOString() : null
+      }
+
+      // Add nutritional data only for millets articles
+      if (formData.productLine === 'millets') {
+        articleData.nutritionalData = formData.nutritionalData
       }
 
       console.log('Creating article:', articleData)
@@ -204,6 +249,88 @@ export default function NewArticlePage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Nutritional Data - Only for Millets */}
+          {formData.productLine === 'millets' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Nutritional Data</CardTitle>
+                <CardDescription>Nutritional facts and key benefits for this millet variety</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Metric 1 */}
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-gray-900">First Metric</h4>
+                    <div className="space-y-2">
+                      <div>
+                        <Label htmlFor="metric1-value">Value</Label>
+                        <Input
+                          id="metric1-value"
+                          value={formData.nutritionalData.metric1.value}
+                          onChange={(e) => handleNutritionalChange('metric1', 'value', e.target.value)}
+                          placeholder="e.g., 200mm, 344mg, 50"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="metric1-label">Label</Label>
+                        <Input
+                          id="metric1-label"
+                          value={formData.nutritionalData.metric1.label}
+                          onChange={(e) => handleNutritionalChange('metric1', 'label', e.target.value)}
+                          placeholder="e.g., Min Rainfall, Calcium per 100g, Glycemic Index"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metric 2 */}
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-gray-900">Second Metric</h4>
+                    <div className="space-y-2">
+                      <div>
+                        <Label htmlFor="metric2-value">Value</Label>
+                        <Input
+                          id="metric2-value"
+                          value={formData.nutritionalData.metric2.value}
+                          onChange={(e) => handleNutritionalChange('metric2', 'value', e.target.value)}
+                          placeholder="e.g., 46°C, 3.9mg, 12.3g"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="metric2-label">Label</Label>
+                        <Input
+                          id="metric2-label"
+                          value={formData.nutritionalData.metric2.label}
+                          onChange={(e) => handleNutritionalChange('metric2', 'label', e.target.value)}
+                          placeholder="e.g., Heat Tolerance, Iron per 100g, Protein per 100g"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Benefits */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Key Benefits (3 required)</h4>
+                  <div className="space-y-2">
+                    {formData.nutritionalData.keyBenefits.map((benefit, index) => (
+                      <div key={index}>
+                        <Label htmlFor={`benefit-${index}`}>Benefit {index + 1}</Label>
+                        <Input
+                          id={`benefit-${index}`}
+                          value={benefit.benefit}
+                          onChange={(e) => handleBenefitChange(index, e.target.value)}
+                          placeholder={`e.g., ${index === 0 ? 'Drought-resistant supercrop' : index === 1 ? 'Superior to dairy for calcium' : 'Rich in amino acids'}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* SEO Information */}
           <Card>
