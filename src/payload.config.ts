@@ -26,7 +26,8 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.DATABASE_URL || 
+        `postgresql://neondb_owner:npg_KA3PkImMOxG9@ep-proud-queen-afw6xn4k-pooler.c-2.us-west-2.aws.neon.tech:5432/neondb?sslmode=require`,
     },
   }),
   sharp,
