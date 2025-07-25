@@ -26,9 +26,7 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || 
-        (process.env.DATABASE_URL_BASE64 ? Buffer.from(process.env.DATABASE_URL_BASE64, 'base64').toString('utf-8') : undefined) ||
-        `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}?sslmode=require`,
+      connectionString: process.env.DATABASE_URL,
     },
   }),
   sharp,
