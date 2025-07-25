@@ -22,8 +22,8 @@ export default function Header({ currentSection = 'home', onNavigate, onSearch }
 
   // Determine active section for navigation highlighting
   const getActiveSection = () => {
-    if (currentSection === 'recipe' || currentSection === 'article') {
-      return 'recipes'; // Treat recipe and article pages as part of recipes section
+    if (currentSection === 'recipe') {
+      return 'recipes'; // Treat recipe pages as part of recipes section
     }
     return currentSection;
   };

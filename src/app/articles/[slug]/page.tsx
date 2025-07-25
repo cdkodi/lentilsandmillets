@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 
 interface Article {
@@ -26,6 +26,7 @@ interface Article {
 
 export default function ArticlePage() {
   const params = useParams()
+  const router = useRouter()
   const slug = params.slug as string
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
@@ -65,10 +66,40 @@ export default function ArticlePage() {
     }
   }, [slug])
 
+  const handleNavigate = (section: string) => {
+    switch (section) {
+      case 'home':
+        router.push('/')
+        break
+      case 'lentils':
+        router.push('/#lentils')
+        break
+      case 'millets':
+        router.push('/#millets')
+        break
+      case 'recipes':
+        router.push('/#recipes')
+        break
+      default:
+        router.push('/')
+    }
+  }
+
+  const getCurrentSection = () => {
+    if (!article) return 'home'
+    // Map article productLine to correct navigation section
+    if (article.productLine === 'lentils') return 'lentils'
+    if (article.productLine === 'millets') return 'millets'
+    return 'home'
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header currentSection="article" />
+        <Header 
+          currentSection={getCurrentSection()}
+          onNavigate={handleNavigate}
+        />
         <div className="pt-16 flex items-center justify-center min-h-screen">
           <div className="text-lg">Loading article...</div>
         </div>
@@ -79,7 +110,10 @@ export default function ArticlePage() {
   if (error || !article) {
     return (
       <div className="min-h-screen bg-white">
-        <Header currentSection="article" />
+        <Header 
+          currentSection={getCurrentSection()}
+          onNavigate={handleNavigate}
+        />
         <div className="pt-16 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Article Not Found</h2>
@@ -100,7 +134,8 @@ export default function ArticlePage() {
     <div className="min-h-screen bg-white">
       {/* Main Site Header */}
       <Header 
-        currentSection="article"
+        currentSection={getCurrentSection()}
+        onNavigate={handleNavigate}
       />
       
       {/* Article Header */}

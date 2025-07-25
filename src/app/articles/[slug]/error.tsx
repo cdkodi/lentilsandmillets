@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 
 export default function Error({
@@ -11,14 +12,36 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const router = useRouter()
+  
   useEffect(() => {
     console.error('Article page error:', error)
   }, [error])
 
+  const handleNavigate = (section: string) => {
+    switch (section) {
+      case 'home':
+        router.push('/')
+        break
+      case 'lentils':
+        router.push('/#lentils')
+        break
+      case 'millets':
+        router.push('/#millets')
+        break
+      case 'recipes':
+        router.push('/#recipes')
+        break
+      default:
+        router.push('/')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Header 
-        currentSection="article"
+        currentSection="home"
+        onNavigate={handleNavigate}
       />
       
       <div className="pt-16">
