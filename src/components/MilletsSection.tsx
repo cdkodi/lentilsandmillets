@@ -13,18 +13,15 @@ interface MilletsSectionProps {
 
 export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionProps) {
   const [milletArticles, setMilletArticles] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   
   useEffect(() => {
-    // Small delay to ensure API is ready
-    const timer = setTimeout(() => {
-      fetchMilletArticles()
-    }, 500)
-    
-    return () => clearTimeout(timer)
+    fetchMilletArticles()
   }, [])
 
   const fetchMilletArticles = async () => {
     try {
+      setIsLoading(true)
       const response = await fetch('/api/articles')
       
       if (response.ok) {
@@ -41,6 +38,8 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
     } catch (error) {
       // Silently handle error - component will work without articles
       setMilletArticles([])
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -168,8 +167,37 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
 
         {/* Millet Types Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-20">
+          {/* Loading Skeleton for Featured Article */}
+          {isLoading && (
+            <div className="group cursor-pointer">
+              <div className="relative overflow-hidden rounded-2xl shadow-lg">
+                {/* Loading badge */}
+                <div className="absolute top-4 left-4 z-10 bg-gray-300 animate-pulse rounded-full px-3 py-1">
+                  <div className="h-4 w-20 bg-gray-400 rounded"></div>
+                </div>
+                
+                {/* Loading background */}
+                <div className="w-full h-64 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                
+                <div className="absolute bottom-6 left-6 right-6 text-white">
+                  <div className="flex items-center mb-2">
+                    <div className="w-4 h-4 bg-gray-400 rounded mr-2 animate-pulse"></div>
+                    <div className="h-3 w-16 bg-gray-400 rounded animate-pulse"></div>
+                  </div>
+                  <div className="h-6 w-3/4 bg-gray-400 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 w-full bg-gray-400 rounded mb-2 animate-pulse"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="h-3 w-20 bg-gray-400 rounded animate-pulse"></div>
+                    <div className="w-4 h-4 bg-gray-400 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Featured Article Card (First Position) */}
-          {milletArticles.length > 0 && (
+          {!isLoading && milletArticles.length > 0 && (
             <Link key="featured-article" href={`/articles/${milletArticles[0].slug}`}>
               <div className="group cursor-pointer">
                 <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
@@ -201,8 +229,8 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             </Link>
           )}
 
-          {/* Regular Millet Types (Skip first if article exists, or show all if no article) */}
-          {milletTypes.slice(milletArticles.length > 0 ? 1 : 0).map((millet, index) => (
+          {/* Regular Millet Types (Skip first if article exists, or show all if no article/loading) */}
+          {milletTypes.slice(!isLoading && milletArticles.length > 0 ? 1 : 0).map((millet, index) => (
             <div key={index} className="group cursor-pointer">
               <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
                 <ImageWithFallback
