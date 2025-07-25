@@ -17,8 +17,30 @@ const dirname = path.dirname(filename)
 
 // Database configuration for Vercel/Neon
 const databaseConfig = () => {
-  // For production/Vercel, use individual PG* environment variables
+  // For Vercel serverless, use Neon HTTP driver
+  if (process.env.VERCEL && process.env.DATABASE_URL) {
+    // Use Neon HTTP driver for Vercel
+    const sql = neon(process.env.DATABASE_URL)
+    return {
+      connectionString: process.env.DATABASE_URL,
+      // Enable HTTP mode for serverless
+      ssl: { rejectUnauthorized: false }
+    }
+  }
+  
+  // For production/Vercel with PG* variables, construct URL for Neon HTTP driver
   if (process.env.PGHOST) {
+    const connectionString = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT || 5432}/${process.env.PGDATABASE}?sslmode=require`
+    
+    if (process.env.VERCEL) {
+      // Initialize Neon HTTP driver for Vercel
+      const sql = neon(connectionString)
+      return {
+        connectionString,
+        ssl: { rejectUnauthorized: false }
+      }
+    }
+    
     return {
       host: process.env.PGHOST,
       port: process.env.PGPORT ? parseInt(process.env.PGPORT) : 5432,
