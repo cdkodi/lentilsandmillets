@@ -149,4 +149,4 @@ chromatic.log
 
 # Bundle analyzer
 .next/analyze/
-analyzer/
+analyzer/Claude-Code-Usage-Monitor/
