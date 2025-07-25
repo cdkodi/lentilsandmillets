@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
+    "@neondatabase/serverless": "^1.0.1",
     "@payloadcms/db-postgres": "^3.48.0",
     "@payloadcms/next": "^3.48.0",
     "@payloadcms/richtext-lexical": "^3.48.0",
