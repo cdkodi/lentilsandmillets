@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { ArrowRight, Clock, Users, Star, Leaf, Filter } from 'lucide-react';
+import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 interface MilletsSectionProps {
@@ -11,6 +12,38 @@ interface MilletsSectionProps {
 }
 
 export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionProps) {
+  const [milletArticles, setMilletArticles] = useState<any[]>([])
+  
+  useEffect(() => {
+    // Small delay to ensure API is ready
+    const timer = setTimeout(() => {
+      fetchMilletArticles()
+    }, 500)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  const fetchMilletArticles = async () => {
+    try {
+      const response = await fetch('/api/articles')
+      
+      if (response.ok) {
+        const data = await response.json()
+        const articles = data.docs || data || []
+        
+        // Filter for millets articles that are published
+        const milletArticles = articles.filter((article: any) => 
+          article.productLine === 'millets' && article.status === 'published'
+        )
+        
+        setMilletArticles(milletArticles)
+      }
+    } catch (error) {
+      // Silently handle error - component will work without articles
+      setMilletArticles([])
+    }
+  }
+
   const milletTypes = [
     {
       name: 'Pearl Millet',
@@ -135,7 +168,41 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
 
         {/* Millet Types Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-20">
-          {milletTypes.map((millet, index) => (
+          {/* Featured Article Card (First Position) */}
+          {milletArticles.length > 0 && (
+            <Link key="featured-article" href={`/articles/${milletArticles[0].slug}`}>
+              <div className="group cursor-pointer">
+                <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                  {/* Article Badge */}
+                  <div className="absolute top-4 left-4 z-10 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Featured Article
+                  </div>
+                  
+                  {/* Background gradient matching millets theme */}
+                  <div className="w-full h-64 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-400"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  
+                  <div className="absolute bottom-6 left-6 right-6 text-white">
+                    <div className="flex items-center mb-2">
+                      <BookOpen size={16} className="mr-2" />
+                      <span className="text-xs opacity-80">
+                        {milletArticles[0].readingTime || 5} min read
+                      </span>
+                    </div>
+                    <h3 className="text-xl mb-2 line-clamp-2">{milletArticles[0].title}</h3>
+                    <p className="text-sm opacity-90 mb-2 line-clamp-2">{milletArticles[0].excerpt}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs opacity-80">Latest Article</div>
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Regular Millet Types (Skip first if article exists, or show all if no article) */}
+          {milletTypes.slice(milletArticles.length > 0 ? 1 : 0).map((millet, index) => (
             <div key={index} className="group cursor-pointer">
               <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
                 <ImageWithFallback
@@ -205,6 +272,43 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             </div>
           ))}
         </div>
+
+        {/* Millet Articles */}
+        {milletArticles.length > 0 && (
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
+                Learn About Millets
+              </h3>
+              <p className="text-lg opacity-80">
+                Educational articles about the benefits and uses of ancient millets
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {milletArticles.slice(0, 3).map((article) => (
+                <Link key={article.id} href={`/articles/${article.slug}`}>
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105 cursor-pointer">
+                    <div className="p-6">
+                      <div className="flex items-center mb-3">
+                        <BookOpen size={20} style={{ color: 'var(--color-millets-secondary)' }} />
+                        <span className="ml-2 text-sm opacity-70">
+                          {article.readingTime || 5} min read
+                        </span>
+                      </div>
+                      <h4 className="text-lg font-semibold mb-3 line-clamp-2">{article.title}</h4>
+                      <p className="text-sm opacity-80 mb-4 line-clamp-3">{article.excerpt}</p>
+                      <div className="flex items-center justify-between text-xs opacity-60">
+                        <span>By {article.author}</span>
+                        <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="text-center">
