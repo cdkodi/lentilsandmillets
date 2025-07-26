@@ -45,7 +45,7 @@ jobs:
     - name: Update deployment status
       run: |
         echo "Deployment completed successfully"
-        echo "Production URL: https://lentilsandmillets.com" # Update with your actual domain
+        echo "Production URL: https://lentilsandmillets.vercel.app"
 
     - name: Notify team
       if: failure()
