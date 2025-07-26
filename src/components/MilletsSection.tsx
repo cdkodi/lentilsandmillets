@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen, Shield, TrendingUp, Droplets, Thermometer } from 'lucide-react';
 import SearchBar from './SearchBar';
+import ContentManager from '../utils/contentManager';
+import ViewMoreButton from './ViewMoreButton';
 
 interface MilletsSectionProps {
   onNavigate?: (section: string, data?: any) => void;
@@ -12,32 +14,45 @@ interface MilletsSectionProps {
 }
 
 export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionProps) {
-  const [milletArticles, setMilletArticles] = useState<any[]>([])
+  const [dynamicContent, setDynamicContent] = useState<{
+    nutritionalFacts: any[]
+    featuredRecipes: any[]
+    varietyGuides: any[]
+    latestResearch: any[]
+  }>({
+    nutritionalFacts: [],
+    featuredRecipes: [],
+    varietyGuides: [],
+    latestResearch: []
+  })
   const [isLoading, setIsLoading] = useState(true)
   
   useEffect(() => {
-    fetchMilletArticles()
+    fetchDynamicContent()
   }, [])
 
-  const fetchMilletArticles = async () => {
+  const fetchDynamicContent = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/articles')
       
-      if (response.ok) {
-        const data = await response.json()
-        const articles = data.docs || data || []
-        
-        // Filter for millets articles that are published
-        const milletArticles = articles.filter((article: any) => 
-          article.productLine === 'millets' && article.status === 'published'
-        )
-        
-        setMilletArticles(milletArticles)
-      }
+      // Fetch different types of content in parallel
+      const [nutritionalFacts, featuredRecipes, varietyGuides, latestResearch] = await Promise.all([
+        ContentManager.getNutritionalFacts('millets', 3),
+        ContentManager.getFeaturedRecipes('millets', 4),
+        ContentManager.getVarietyGuides('millets', 3),
+        ContentManager.getLatestResearch('millets', 3)
+      ])
+      
+      setDynamicContent({
+        nutritionalFacts,
+        featuredRecipes,
+        varietyGuides,
+        latestResearch
+      })
+      
     } catch (error) {
-      // Silently handle error - component will work without articles
-      setMilletArticles([])
+      console.warn('Error fetching dynamic content:', error)
+      // Component will work with fallback content
     } finally {
       setIsLoading(false)
     }
@@ -101,575 +116,669 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
 
   return (
     <div className="millets-theme min-h-screen py-16">
-      {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl mb-6" style={{ color: 'var(--color-millets-secondary)' }}>
-            Ancient Millets Collection
-          </h2>
-          <p className="text-lg md:text-xl max-w-3xl mx-auto opacity-80 mb-8">
-            Rediscover the golden grains of our ancestors. These nutrient-dense superfoods 
-            are perfect for modern healthy living and sustainable nutrition.
-          </p>
 
-          {/* Section Search */}
-          <div className="max-w-lg mx-auto mb-8">
-            <SearchBar
-              variant="section"
-              theme="millets"
-              placeholder="Search millet recipes, varieties, benefits..."
-              onSearch={handleSearch}
-              onSuggestionClick={handleSuggestionClick}
-            />
-          </div>
-
-          {/* Filter Tags */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            <button className="flex items-center space-x-1 px-4 py-2 bg-white/80 hover:bg-white rounded-full text-sm transition-colors">
-              <Filter size={14} />
-              <span>All Types</span>
-            </button>
-            <button className="px-4 py-2 bg-white/60 hover:bg-white/80 rounded-full text-sm transition-colors">
-              Gluten-Free
-            </button>
-            <button className="px-4 py-2 bg-white/60 hover:bg-white/80 rounded-full text-sm transition-colors">
-              High Calcium
-            </button>
-            <button className="px-4 py-2 bg-white/60 hover:bg-white/80 rounded-full text-sm transition-colors">
-              Diabetic-Friendly
-            </button>
-          </div>
-        </div>
-
-        {/* Health Benefits Banner */}
-        <div className="mb-16 p-8 rounded-2xl" style={{ backgroundColor: 'var(--color-millets-muted)' }}>
-          <div className="flex items-center justify-center mb-4">
-            <Leaf size={32} style={{ color: 'var(--color-millets-secondary)' }} />
-          </div>
-          <h3 className="text-2xl text-center mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
-            Why Choose Millets?
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div>
-              <h4 className="mb-2">Gluten-Free</h4>
-              <p className="text-sm opacity-80">Perfect for celiac and gluten-sensitive individuals</p>
-            </div>
-            <div>
-              <h4 className="mb-2">Nutrient Dense</h4>
-              <p className="text-sm opacity-80">Packed with protein, fiber, and essential minerals</p>
-            </div>
-            <div>
-              <h4 className="mb-2">Sustainable</h4>
-              <p className="text-sm opacity-80">Climate-resilient crops with minimal water needs</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Millet Nutritional Facts Section - Force refresh 2025-07-26 */}
+        {/* Millet Nutritional Facts Section - Updated to match original design */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <div className="text-sm text-orange-500 font-medium mb-2">NUTRITION SCIENCE</div>
-            <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
+            <div className="inline-block text-sm font-medium mb-4 px-3 py-1 rounded-full" 
+                 style={{ 
+                   backgroundColor: '#FFF4E6', 
+                   color: '#f39c12' 
+                 }}>
+              NUTRITION SCIENCE
+            </div>
+            <h1 className="text-3xl md:text-5xl mb-6 font-bold" 
+                style={{ 
+                  color: '#f39c12',
+                  fontFamily: 'Playfair Display, serif'
+                }}>
               Millet Nutritional Facts
-            </h3>
-            <p className="text-lg opacity-80 max-w-3xl mx-auto">
+            </h1>
+            <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
               Discover the scientific evidence behind these nutritional powerhouses and their impact on modern health.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-16 items-stretch">
-            {/* Loading skeletons for nutritional fact cards */}
-            {isLoading && (
-              Array.from({length: 3}).map((_, index) => (
-                <div key={`skeleton-${index}`} className="rounded-2xl p-6 shadow-lg transition-all duration-300" style={{ backgroundColor: 'var(--color-millets-muted)' }}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-8 h-8 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-millets-primary)' }}></div>
-                    <div className="text-xs font-medium animate-pulse" style={{ color: 'var(--color-millets-secondary)' }}>MILLETS</div>
+            {/* Always show three cards matching the reference design */}
+            
+            {/* Pearl Millet Card - Climate Resilient */}
+            <div className="group cursor-pointer h-full">
+              <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
+                   style={{ backgroundColor: '#FEF7E6' }}>
+                {/* Header with icon and label */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
+                       style={{ backgroundColor: '#f39c12' }}>
+                    <Thermometer size={20} />
                   </div>
-                  <div className="h-32 bg-gray-200 rounded-xl mb-6 animate-pulse"></div>
-                  <div className="h-6 bg-gray-300 rounded mb-4 animate-pulse"></div>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="text-center">
-                      <div className="h-8 rounded mb-1 animate-pulse" style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
-                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                    <div className="text-center">
-                      <div className="h-8 rounded mb-1 animate-pulse" style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
-                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {[1,2,3].map(i => (
-                      <div key={i} className="flex items-center">
-                        <div className="w-2 h-2 rounded-full mr-3 animate-pulse" style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
-                        <div className="h-4 bg-gray-200 rounded flex-1 animate-pulse"></div>
-                      </div>
-                    ))}
+                  <div className="text-xs font-medium tracking-wide" 
+                       style={{ color: '#B8860B' }}>
+                    MILLETS
                   </div>
                 </div>
-              ))
-            )}
 
-            {/* Nutritional fact cards */}
-            {!isLoading && milletArticles.map((article, index) => {
-              if (!article.nutritionalData) return null;
-              
-              return (
-                <Link key={article.id} href={`/articles/${article.slug}`}>
-                  <div className="group cursor-pointer">
-                    <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 premium-image" 
-                         style={{ backgroundColor: 'var(--color-millets-muted)' }}>
-                      {/* Header with icon and label */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center" 
-                             style={{ backgroundColor: 'var(--color-millets-primary)' }}>
-                          <div className="w-4 h-4 bg-white rounded-full"></div>
-                        </div>
-                        <div className="text-xs font-medium subheading" 
-                             style={{ color: 'var(--color-millets-secondary)' }}>
-                          MILLETS
-                        </div>
-                      </div>
+                {/* Image placeholder */}
+                <div className="h-32 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 border-2 rounded flex items-center justify-center" 
+                       style={{ borderColor: '#ccc' }}>
+                    <div className="w-8 h-8 border rounded" 
+                         style={{ borderColor: '#999' }}></div>
+                  </div>
+                </div>
 
-                      {/* Image placeholder with sophisticated styling */}
-                      <div className="h-32 bg-gray-200 rounded-xl mb-6 flex items-center justify-center overflow-hidden">
-                        <div className="w-16 h-16 border-2 rounded flex items-center justify-center" 
-                             style={{ borderColor: 'var(--color-millets-secondary)' }}>
-                          <div className="w-8 h-8 border rounded" 
-                               style={{ borderColor: 'var(--color-millets-primary)' }}></div>
-                        </div>
-                      </div>
+                {/* Title */}
+                <h4 className="text-lg font-medium mb-4 text-center leading-tight" 
+                    style={{ color: '#8B4513' }}>
+                  Pearl Millet: Climate-Resilient Champion
+                </h4>
 
-                      {/* Title with proper typography */}
-                      <h4 className="text-lg font-semibold mb-4 line-clamp-2" 
-                          style={{ 
-                            color: 'var(--color-millets-text)',
-                            fontFamily: 'var(--font-primary)'
-                          }}>
-                        {article.title}
-                      </h4>
-
-                      {/* Metrics with enhanced styling */}
-                      <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold mb-1" 
-                               style={{ 
-                                 color: 'var(--color-millets-secondary)',
-                                 fontFamily: 'var(--font-display)'
-                               }}>
-                            {article.nutritionalData.metric1?.value || 'N/A'}
-                          </div>
-                          <div className="text-xs" 
-                               style={{ color: 'var(--color-millets-text)' }}>
-                            {article.nutritionalData.metric1?.label || 'Metric 1'}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold mb-1" 
-                               style={{ 
-                                 color: 'var(--color-millets-secondary)',
-                                 fontFamily: 'var(--font-display)'
-                               }}>
-                            {article.nutritionalData.metric2?.value || 'N/A'}
-                          </div>
-                          <div className="text-xs" 
-                               style={{ color: 'var(--color-millets-text)' }}>
-                            {article.nutritionalData.metric2?.label || 'Metric 2'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Key Benefits with bullet styling */}
-                      <div className="space-y-2">
-                        {article.nutritionalData.keyBenefits?.slice(0, 3).map((benefit: any, benefitIndex: number) => (
-                          <div key={benefitIndex} className="flex items-center text-sm" 
-                               style={{ color: 'var(--color-millets-text)' }}>
-                            <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                                 style={{ backgroundColor: 'var(--color-millets-secondary)' }}></div>
-                            <span className="line-clamp-1">{benefit.benefit}</span>
-                          </div>
-                        )) || Array.from({length: 3}).map((_, i) => (
-                          <div key={i} className="flex items-center text-sm" 
-                               style={{ color: 'var(--color-muted-foreground)' }}>
-                            <div className="w-2 h-2 bg-gray-300 rounded-full mr-3"></div>
-                            <span>Benefit {i + 1}</span>
-                          </div>
-                        ))}
-                      </div>
+                {/* Metrics with white background boxes */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="text-center bg-white rounded-lg p-3">
+                    <div className="text-xl font-bold mb-1" 
+                         style={{ color: '#f39c12' }}>
+                      200mm
+                    </div>
+                    <div className="text-xs" 
+                         style={{ color: '#8B4513' }}>
+                      Min Rainfall
                     </div>
                   </div>
-                </Link>
-              );
-            })}
-
-            {/* Show placeholder cards with exact design from screenshots */}
-            {!isLoading && milletArticles.length === 0 && (
-              <>
-                {/* Pearl Millet Card */}
-                <div className="group cursor-pointer h-full">
-                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
-                       style={{ backgroundColor: '#FEF7E6', minHeight: '520px' }}>
-                    {/* Header with icon and label */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
-                           style={{ backgroundColor: '#f39c12' }}>
-                        <Leaf size={16} />
-                      </div>
-                      <div className="text-xs font-medium tracking-wide" 
-                           style={{ color: '#B8860B' }}>
-                        MILLETS
-                      </div>
+                  <div className="text-center bg-white rounded-lg p-3">
+                    <div className="text-xl font-bold mb-1" 
+                         style={{ color: '#f39c12' }}>
+                      46°C
                     </div>
-
-                    {/* Image placeholder */}
-                    <div className="h-40 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                      <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                           style={{ borderColor: '#e67e22' }}>
-                        <div className="w-12 h-12 border rounded" 
-                             style={{ borderColor: '#f39c12' }}></div>
-                      </div>
-                    </div>
-
-                    {/* Title with fixed height */}
-                    <div className="h-16 flex items-center justify-center mb-6">
-                      <h4 className="text-lg font-medium text-center leading-tight" 
-                          style={{ color: '#8B4513' }}>
-                        Pearl Millet: Climate-Resilient Champion
-                      </h4>
-                    </div>
-
-                    {/* Metrics with exact values from screenshot */}
-                    <div className="grid grid-cols-2 gap-4 mb-6 bg-white rounded-lg p-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold mb-1" 
-                             style={{ color: '#f39c12' }}>
-                          200mm
-                        </div>
-                        <div className="text-xs" 
-                             style={{ color: '#8B4513' }}>
-                          Min Rainfall
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold mb-1" 
-                             style={{ color: '#f39c12' }}>
-                          46°C
-                        </div>
-                        <div className="text-xs" 
-                             style={{ color: '#8B4513' }}>
-                          Heat Tolerance
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Key Benefits with bullet styling */}
-                    <div className="space-y-2 flex-grow">
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Drought-resistant supercrop</span>
-                      </div>
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Grows in marginal lands</span>
-                      </div>
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Carbon-negative farming</span>
-                      </div>
+                    <div className="text-xs" 
+                         style={{ color: '#8B4513' }}>
+                      Heat Tolerance
                     </div>
                   </div>
                 </div>
 
-                {/* Finger Millet Card */}
-                <div className="group cursor-pointer h-full">
-                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
-                       style={{ backgroundColor: '#FEF7E6', minHeight: '520px' }}>
-                    {/* Header with icon and label */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
-                           style={{ backgroundColor: '#f39c12' }}>
-                        <Shield size={16} />
-                      </div>
-                      <div className="text-xs font-medium tracking-wide" 
-                           style={{ color: '#B8860B' }}>
-                        MILLETS
-                      </div>
-                    </div>
-
-                    {/* Image placeholder */}
-                    <div className="h-40 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                      <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                           style={{ borderColor: '#e67e22' }}>
-                        <div className="w-12 h-12 border rounded" 
-                             style={{ borderColor: '#f39c12' }}></div>
-                      </div>
-                    </div>
-
-                    {/* Title with fixed height */}
-                    <div className="h-16 flex items-center justify-center mb-6">
-                      <h4 className="text-lg font-medium text-center leading-tight" 
-                          style={{ color: '#8B4513' }}>
-                        Finger Millet: Natural Calcium Source
-                      </h4>
-                    </div>
-
-                    {/* Metrics with exact values from screenshot */}
-                    <div className="grid grid-cols-2 gap-4 mb-6 bg-white rounded-lg p-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold mb-1" 
-                             style={{ color: '#f39c12' }}>
-                          344mg
-                        </div>
-                        <div className="text-xs" 
-                             style={{ color: '#8B4513' }}>
-                          Calcium per 100g
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold mb-1" 
-                             style={{ color: '#f39c12' }}>
-                          3.9mg
-                        </div>
-                        <div className="text-xs" 
-                             style={{ color: '#8B4513' }}>
-                          Iron per 100g
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Key Benefits with bullet styling */}
-                    <div className="space-y-2 flex-grow">
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Superior to dairy for calcium</span>
-                      </div>
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Supports bone health</span>
-                      </div>
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Rich in amino acids</span>
-                      </div>
-                    </div>
+                {/* Key Benefits */}
+                <div className="space-y-2 flex-grow">
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Drought-resistant supercrop</span>
                   </div>
-                </div>
-
-                {/* Foxtail Millet Card */}
-                <div className="group cursor-pointer h-full">
-                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
-                       style={{ backgroundColor: '#FEF7E6', minHeight: '520px' }}>
-                    {/* Header with icon and label */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
-                           style={{ backgroundColor: '#f39c12' }}>
-                        <Star size={16} />
-                      </div>
-                      <div className="text-xs font-medium tracking-wide" 
-                           style={{ color: '#B8860B' }}>
-                        MILLETS
-                      </div>
-                    </div>
-
-                    {/* Real image like in screenshot */}
-                    <div className="h-40 rounded-xl mb-4 overflow-hidden">
-                      <ImageWithFallback
-                        src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="Foxtail Millet"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Title with fixed height */}
-                    <div className="h-16 flex items-center justify-center mb-6">
-                      <h4 className="text-lg font-medium text-center leading-tight" 
-                          style={{ color: '#8B4513' }}>
-                        Foxtail Millet: Diabetic-Friendly Grain
-                      </h4>
-                    </div>
-
-                    {/* Metrics with exact values from screenshot */}
-                    <div className="grid grid-cols-2 gap-4 mb-6 bg-white rounded-lg p-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold mb-1" 
-                             style={{ color: '#f39c12' }}>
-                          50
-                        </div>
-                        <div className="text-xs" 
-                             style={{ color: '#8B4513' }}>
-                          Glycemic Index
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold mb-1" 
-                             style={{ color: '#f39c12' }}>
-                          12.3g
-                        </div>
-                        <div className="text-xs" 
-                             style={{ color: '#8B4513' }}>
-                          Protein per 100g
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Key Benefits with bullet styling */}
-                    <div className="space-y-2 flex-grow">
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Low glycemic index</span>
-                      </div>
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>Balances blood sugar</span>
-                      </div>
-                      <div className="flex items-center text-sm" 
-                           style={{ color: '#8B4513' }}>
-                        <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#f39c12' }}></div>
-                        <span>High in B-vitamins</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Grows in marginal lands</span>
                   </div>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Explore All Button */}
-          <div className="text-center">
-            <button 
-              className="px-8 py-3 border-2 rounded-full transition-all duration-300 hover:scale-105"
-              style={{ 
-                borderColor: 'var(--color-millets-secondary)',
-                color: 'var(--color-millets-secondary)',
-                backgroundColor: 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-millets-muted)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              Explore All Millet Varieties
-            </button>
-          </div>
-        </div>
-
-        {/* Ancient Millets Collection Section */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
-              Ancient Millets Collection
-            </h3>
-            <p className="text-lg opacity-80 max-w-3xl mx-auto">
-              Rediscover the golden grains of our ancestors. These nutrient-dense superfoods are perfect for modern healthy living and sustainable nutrition.
-            </p>
-          </div>
-
-          {/* Traditional Millet Types Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {milletTypes.map((millet, index) => (
-              <div key={index} className="group cursor-pointer">
-                <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                  <ImageWithFallback
-                    src={millet.image}
-                    alt={millet.name}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 right-6 text-white">
-                    <h3 className="text-xl mb-2">{millet.name}</h3>
-                    <p className="text-sm opacity-90 mb-2">{millet.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs opacity-80">{millet.benefits}</div>
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </div>
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Carbon-negative farming</span>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Finger Millet Card - Natural Calcium Source */}
+            <div className="group cursor-pointer h-full">
+              <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
+                   style={{ backgroundColor: '#FEF7E6' }}>
+                {/* Header with icon and label */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
+                       style={{ backgroundColor: '#f39c12' }}>
+                    <Shield size={20} />
+                  </div>
+                  <div className="text-xs font-medium tracking-wide" 
+                       style={{ color: '#B8860B' }}>
+                    MILLETS
+                  </div>
+                </div>
+
+                {/* Image placeholder */}
+                <div className="h-32 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 border-2 rounded flex items-center justify-center" 
+                       style={{ borderColor: '#ccc' }}>
+                    <div className="w-8 h-8 border rounded" 
+                         style={{ borderColor: '#999' }}></div>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h4 className="text-lg font-medium mb-4 text-center leading-tight" 
+                    style={{ color: '#8B4513' }}>
+                  Finger Millet: Natural Calcium Source
+                </h4>
+
+                {/* Metrics with white background boxes */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="text-center bg-white rounded-lg p-3">
+                    <div className="text-xl font-bold mb-1" 
+                         style={{ color: '#f39c12' }}>
+                      344mg
+                    </div>
+                    <div className="text-xs" 
+                         style={{ color: '#8B4513' }}>
+                      Calcium per 100g
+                    </div>
+                  </div>
+                  <div className="text-center bg-white rounded-lg p-3">
+                    <div className="text-xl font-bold mb-1" 
+                         style={{ color: '#f39c12' }}>
+                      3.9mg
+                    </div>
+                    <div className="text-xs" 
+                         style={{ color: '#8B4513' }}>
+                      Iron per 100g
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Benefits */}
+                <div className="space-y-2 flex-grow">
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Superior to dairy for calcium</span>
+                  </div>
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Supports bone health</span>
+                  </div>
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Rich in amino acids</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Foxtail Millet Card - Diabetic Friendly with real image */}
+            <div className="group cursor-pointer h-full">
+              <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
+                   style={{ backgroundColor: '#FEF7E6' }}>
+                {/* Header with icon and label */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
+                       style={{ backgroundColor: '#f39c12' }}>
+                    <TrendingUp size={20} />
+                  </div>
+                  <div className="text-xs font-medium tracking-wide" 
+                       style={{ color: '#B8860B' }}>
+                    MILLETS
+                  </div>
+                </div>
+
+                {/* Real image like in original reference */}
+                <div className="h-32 rounded-xl mb-4 overflow-hidden">
+                  <ImageWithFallback
+                    src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Foxtail Millet"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Title */}
+                <h4 className="text-lg font-medium mb-4 text-center leading-tight" 
+                    style={{ color: '#8B4513' }}>
+                  Foxtail Millet: Diabetic-Friendly Grain
+                </h4>
+
+                {/* Metrics with white background boxes */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="text-center bg-white rounded-lg p-3">
+                    <div className="text-xl font-bold mb-1" 
+                         style={{ color: '#f39c12' }}>
+                      50
+                    </div>
+                    <div className="text-xs" 
+                         style={{ color: '#8B4513' }}>
+                      Glycemic Index
+                    </div>
+                  </div>
+                  <div className="text-center bg-white rounded-lg p-3">
+                    <div className="text-xl font-bold mb-1" 
+                         style={{ color: '#f39c12' }}>
+                      12.3g
+                    </div>
+                    <div className="text-xs" 
+                         style={{ color: '#8B4513' }}>
+                      Protein per 100g
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Benefits */}
+                <div className="space-y-2 flex-grow">
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Low glycemic index</span>
+                  </div>
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>Balances blood sugar</span>
+                  </div>
+                  <div className="flex items-center text-sm" 
+                       style={{ color: '#8B4513' }}>
+                    <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                         style={{ backgroundColor: '#f39c12' }}></div>
+                    <span>High in B-vitamins</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dynamic Nutritional Facts - Additional to the main 3 cards */}
+          {!isLoading && dynamicContent.nutritionalFacts.length > 0 && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-8 text-center" style={{ color: '#f39c12' }}>
+                Latest Nutritional Research
+              </h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                {dynamicContent.nutritionalFacts.map((article, index) => (
+                  <Link key={article.id} href={`/articles/${article.slug}`}>
+                    <div className="group cursor-pointer">
+                      <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105" 
+                           style={{ backgroundColor: '#FEF7E6' }}>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center" 
+                               style={{ backgroundColor: '#f39c12' }}>
+                            <div className="w-4 h-4 bg-white rounded-full"></div>
+                          </div>
+                          <div className="text-xs font-medium" style={{ color: '#B8860B' }}>
+                            {article.category?.toUpperCase() || 'NUTRITIONAL'}
+                          </div>
+                        </div>
+                        <h4 className="text-lg font-medium mb-4" style={{ color: '#8B4513' }}>
+                          {article.title}
+                        </h4>
+                        {article.nutritionalData && (
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div className="text-center bg-white rounded-lg p-2">
+                              <div className="text-lg font-bold" style={{ color: '#f39c12' }}>
+                                {article.nutritionalData.metric1?.value || 'N/A'}
+                              </div>
+                              <div className="text-xs" style={{ color: '#8B4513' }}>
+                                {article.nutritionalData.metric1?.label || 'Metric 1'}
+                              </div>
+                            </div>
+                            <div className="text-center bg-white rounded-lg p-2">
+                              <div className="text-lg font-bold" style={{ color: '#f39c12' }}>
+                                {article.nutritionalData.metric2?.value || 'N/A'}
+                              </div>
+                              <div className="text-xs" style={{ color: '#8B4513' }}>
+                                {article.nutritionalData.metric2?.label || 'Metric 2'}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {article.nutritionalData?.keyBenefits && (
+                          <div className="space-y-1">
+                            {article.nutritionalData.keyBenefits.slice(0, 2).map((benefit: any, benefitIndex: number) => (
+                              <div key={benefitIndex} className="flex items-center text-sm" 
+                                   style={{ color: '#8B4513' }}>
+                                <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                                     style={{ backgroundColor: '#f39c12' }}></div>
+                                <span className="line-clamp-1">{benefit.benefit}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Explore All Button - Updated to match original design */}
+          <div className="text-center">
+            <ViewMoreButton
+              text="Explore All Millet Varieties"
+              onClick={() => onNavigate?.('varieties')}
+              variant="secondary"
+            />
           </div>
         </div>
 
-        {/* Featured Recipes */}
+        {/* Ancient Millets Collection Section - Updated to match original design */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl mb-6 font-bold" 
+                style={{ 
+                  color: '#f39c12',
+                  fontFamily: 'Playfair Display, serif'
+                }}>
+              Ancient Millets Collection
+            </h2>
+            <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed mb-8">
+              Rediscover the golden grains of our ancestors. These nutrient-dense superfoods are perfect for modern healthy living and sustainable nutrition.
+            </p>
+
+            {/* Search Bar */}
+            <div className="max-w-lg mx-auto mb-8">
+              <SearchBar
+                variant="section"
+                theme="millets"
+                placeholder="Search millet recipes, varieties, benefits..."
+                onSearch={handleSearch}
+                onSuggestionClick={handleSuggestionClick}
+              />
+            </div>
+
+            {/* Filter Tags */}
+            <div className="flex flex-wrap justify-center gap-3 mb-12">
+              <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 hover:border-orange-300 rounded-full text-sm transition-colors font-medium">
+                <Filter size={14} />
+                <span>All Types</span>
+              </button>
+              <button className="px-4 py-2 bg-white border border-gray-200 hover:border-orange-300 rounded-full text-sm transition-colors font-medium">
+                Gluten-Free
+              </button>
+              <button className="px-4 py-2 bg-white border border-gray-200 hover:border-orange-300 rounded-full text-sm transition-colors font-medium">
+                High Calcium
+              </button>
+              <button className="px-4 py-2 bg-white border border-gray-200 hover:border-orange-300 rounded-full text-sm transition-colors font-medium">
+                Diabetic-Friendly
+              </button>
+            </div>
+          </div>
+
+          {/* Why Choose Millets Section - Positioned correctly as in original design */}
+          <div className="mb-16 p-8 rounded-2xl" style={{ backgroundColor: '#FEF7E6' }}>
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" 
+                   style={{ backgroundColor: '#f39c12' }}>
+                <Leaf size={24} className="text-white" />
+              </div>
+            </div>
+            <h3 className="text-2xl text-center mb-8 font-bold" 
+                style={{ 
+                  color: '#f39c12',
+                  fontFamily: 'Playfair Display, serif'
+                }}>
+              Why Choose Millets?
+            </h3>
+            <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div className="mb-4">
+                  <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center" 
+                       style={{ backgroundColor: '#fff' }}>
+                    <Shield size={24} style={{ color: '#f39c12' }} />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-3" style={{ color: '#8B4513' }}>
+                  Gluten-Free
+                </h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Perfect for celiac and gluten-sensitive individuals
+                </p>
+              </div>
+              <div>
+                <div className="mb-4">
+                  <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center" 
+                       style={{ backgroundColor: '#fff' }}>
+                    <TrendingUp size={24} style={{ color: '#f39c12' }} />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-3" style={{ color: '#8B4513' }}>
+                  Nutrient Dense
+                </h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Packed with protein, fiber, and essential minerals
+                </p>
+              </div>
+              <div>
+                <div className="mb-4">
+                  <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center" 
+                       style={{ backgroundColor: '#fff' }}>
+                    <Leaf size={24} style={{ color: '#f39c12' }} />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-3" style={{ color: '#8B4513' }}>
+                  Sustainable
+                </h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Climate-resilient crops with minimal water needs
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Millet Variety Cards - Updated to match original design */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Pearl Millet */}
+            <div className="group cursor-pointer">
+              <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                <div className="h-48 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
+                       style={{ borderColor: '#e67e22' }}>
+                    <div className="w-12 h-12 border rounded" 
+                         style={{ borderColor: '#f39c12' }}></div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
+                  Pearl Millet
+                </h3>
+                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                  High protein, gluten-free ancient grain that is rich in magnesium
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    Excellent for nutrition
+                  </span>
+                  <ArrowRight size={16} style={{ color: '#f39c12' }} 
+                             className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+
+            {/* Finger Millet */}
+            <div className="group cursor-pointer">
+              <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                <div className="h-48 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
+                       style={{ borderColor: '#e67e22' }}>
+                    <div className="w-12 h-12 border rounded" 
+                         style={{ borderColor: '#f39c12' }}></div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
+                  Finger Millet
+                </h3>
+                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                  Calcium powerhouse, perfect for health because of its high mineral
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    Perfect for nutrition
+                  </span>
+                  <ArrowRight size={16} style={{ color: '#f39c12' }} 
+                             className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+
+            {/* Foxtail Millet */}
+            <div className="group cursor-pointer">
+              <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                <div className="h-48 rounded-xl mb-4 overflow-hidden">
+                  <ImageWithFallback
+                    src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Foxtail Millet"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
+                  Foxtail Millet
+                </h3>
+                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                  Low glycemic index, diabetic-friendly. Contains protein and fiber
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    Controls for nutrition
+                  </span>
+                  <ArrowRight size={16} style={{ color: '#f39c12' }} 
+                             className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Featured Millet Recipes - Updated to match original design */}
         <div className="text-center mb-12">
-          <h3 className="text-2xl md:text-4xl mb-4" style={{ color: 'var(--color-millets-secondary)' }}>
+          <h2 className="text-3xl md:text-5xl mb-6 font-bold" 
+              style={{ 
+                color: '#f39c12',
+                fontFamily: 'Playfair Display, serif'
+              }}>
             Featured Millet Recipes
-          </h3>
-          <p className="text-lg opacity-80">
+          </h2>
+          <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
             Wholesome and delicious ways to enjoy these golden grains
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {featuredRecipes.map((recipe) => (
-            <div
-              key={recipe.id}
-              className="group cursor-pointer"
-              onClick={() => onNavigate?.('recipe', recipe)}
-            >
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                <div className="relative">
-                  <ImageWithFallback
-                    src={recipe.image}
-                    alt={recipe.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                    <div className="flex items-center space-x-1">
+          {/* Dynamic Featured Recipes */}
+          {!isLoading && dynamicContent.featuredRecipes.length > 0 ? (
+            dynamicContent.featuredRecipes.slice(0, 2).map((recipe, index) => (
+              <div key={recipe.id} className="group cursor-pointer" onClick={() => onNavigate?.('recipe', recipe)}>
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                  <div className="relative">
+                    {recipe.featuredImage ? (
+                      <ImageWithFallback
+                        src={recipe.featuredImage.url || recipe.featuredImage}
+                        alt={recipe.title}
+                        className="w-full h-48 object-cover"
+                      />
+                    ) : (
+                      <div className="h-48 bg-gray-200 rounded-t-2xl flex items-center justify-center">
+                        <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
+                             style={{ borderColor: '#e67e22' }}>
+                          <div className="w-12 h-12 border rounded" 
+                               style={{ borderColor: '#f39c12' }}></div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
                       <Star size={14} className="text-yellow-500 fill-current" />
-                      <span className="text-sm">{recipe.rating}</span>
+                      <span className="text-sm font-medium">{recipe.rating || '4.5'}</span>
                     </div>
                   </div>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl mb-3">{recipe.title}</h4>
-                  <div className="flex items-center justify-between text-sm opacity-70">
-                    <div className="flex items-center space-x-1">
-                      <Clock size={16} />
-                      <span>{recipe.time}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users size={16} />
-                      <span>Serves {recipe.serves}</span>
+                  <div className="p-6">
+                    <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                      {recipe.title}
+                    </h4>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Clock size={16} />
+                        <span>{recipe.readingTime || recipe.cookTime || '20'} min</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users size={16} />
+                        <span>Serves {recipe.servings || '2-4'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <>
+              {/* Fallback: Golden Millet Pilaf */}
+              <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[0])}>
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                  <div className="relative">
+                    <div className="h-48 bg-gray-200 rounded-t-2xl flex items-center justify-center">
+                      <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
+                           style={{ borderColor: '#e67e22' }}>
+                        <div className="w-12 h-12 border rounded" 
+                             style={{ borderColor: '#f39c12' }}></div>
+                      </div>
+                    </div>
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+                      <Star size={14} className="text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium">4.7</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                      Golden Millet Pilaf
+                    </h4>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Clock size={16} />
+                        <span>25 min</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users size={16} />
+                        <span>Serves 4</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fallback: Millet Breakfast Bowl */}
+              <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[1])}>
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                  <div className="relative">
+                    <ImageWithFallback
+                      src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                      alt="Millet Breakfast Bowl"
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+                      <Star size={14} className="text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium">4.0</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                      Millet Breakfast Bowl
+                    </h4>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Clock size={16} />
+                        <span>15 min</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users size={16} />
+                        <span>Serves 2</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
 
-        {/* CTA */}
+        {/* View All Millet Recipes Button - Updated to match original design */}
         <div className="text-center">
-          <button
+          <ViewMoreButton
+            text="View All Millet Recipes"
             onClick={() => onNavigate?.('recipes')}
-            className="px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105"
-            style={{ 
-              backgroundColor: 'var(--color-millets-secondary)', 
-              color: 'white' 
-            }}
-          >
-            View All Millet Recipes
-          </button>
+            variant="primary"
+          />
         </div>
       </div>
     </div>
