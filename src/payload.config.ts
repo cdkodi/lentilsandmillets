@@ -17,6 +17,14 @@ const dirname = path.dirname(filename)
 
 // Database configuration for Vercel/Neon
 const databaseConfig = () => {
+  // Skip database connection during GitHub Actions build
+  if (process.env.GITHUB_ACTIONS || process.env.CI) {
+    return {
+      connectionString: 'postgresql://user:password@localhost:5432/database',
+      ssl: false
+    }
+  }
+  
   // For Vercel serverless, use Neon HTTP driver
   if (process.env.VERCEL && process.env.DATABASE_URL) {
     // Use Neon HTTP driver for Vercel
