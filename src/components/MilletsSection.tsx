@@ -165,7 +165,7 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
           </div>
         </div>
 
-        {/* Millet Nutritional Facts Section */}
+        {/* Millet Nutritional Facts Section - Force refresh 2025-07-26 */}
         <div className="mb-20">
           <div className="text-center mb-12">
             <div className="text-sm text-orange-500 font-medium mb-2">NUTRITION SCIENCE</div>
