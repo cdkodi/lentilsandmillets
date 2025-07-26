@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen, Shield, TrendingUp, Droplets, Thermometer } from 'lucide-react';
 import SearchBar from './SearchBar';
-// Remove these imports - they don't exist yet, causing build failures
+import Footer from './Footer';
 
 interface MilletsSectionProps {
   onNavigate?: (section: string, data?: any) => void;
@@ -638,6 +638,9 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
           </button>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer theme="millets" />
     </div>
   );
 }
