@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen } from 'lucide-react';
+import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen, Shield, TrendingUp, Droplets, Thermometer } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 interface MilletsSectionProps {
@@ -313,9 +313,7 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                            style={{ backgroundColor: '#f39c12' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2L13.09 7.26L20 9L13.09 10.74L12 16L10.91 10.74L4 9L10.91 7.26L12 2Z"/>
-                        </svg>
+                        <Leaf size={16} />
                       </div>
                       <div className="text-xs font-medium tracking-wide" 
                            style={{ color: '#B8860B' }}>
@@ -396,11 +394,7 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                            style={{ backgroundColor: '#f39c12' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10"/>
-                          <circle cx="12" cy="12" r="6"/>
-                          <circle cx="12" cy="12" r="2"/>
-                        </svg>
+                        <Shield size={16} />
                       </div>
                       <div className="text-xs font-medium tracking-wide" 
                            style={{ color: '#B8860B' }}>
