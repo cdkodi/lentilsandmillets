@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen, Shield, TrendingUp, Droplets, Thermometer } from 'lucide-react';
 import SearchBar from './SearchBar';
-import ContentManager from '../utils/contentManager';
-import ViewMoreButton from './ViewMoreButton';
+// Remove these imports - they don't exist yet, causing build failures
 
 interface MilletsSectionProps {
   onNavigate?: (section: string, data?: any) => void;
@@ -14,49 +13,7 @@ interface MilletsSectionProps {
 }
 
 export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionProps) {
-  const [dynamicContent, setDynamicContent] = useState<{
-    nutritionalFacts: any[]
-    featuredRecipes: any[]
-    varietyGuides: any[]
-    latestResearch: any[]
-  }>({
-    nutritionalFacts: [],
-    featuredRecipes: [],
-    varietyGuides: [],
-    latestResearch: []
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  
-  useEffect(() => {
-    fetchDynamicContent()
-  }, [])
-
-  const fetchDynamicContent = async () => {
-    try {
-      setIsLoading(true)
-      
-      // Fetch different types of content in parallel
-      const [nutritionalFacts, featuredRecipes, varietyGuides, latestResearch] = await Promise.all([
-        ContentManager.getNutritionalFacts('millets', 3),
-        ContentManager.getFeaturedRecipes('millets', 4),
-        ContentManager.getVarietyGuides('millets', 3),
-        ContentManager.getLatestResearch('millets', 3)
-      ])
-      
-      setDynamicContent({
-        nutritionalFacts,
-        featuredRecipes,
-        varietyGuides,
-        latestResearch
-      })
-      
-    } catch (error) {
-      console.warn('Error fetching dynamic content:', error)
-      // Component will work with fallback content
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // Simplified component without dynamic content for now
 
   const milletTypes = [
     {
@@ -381,77 +338,20 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             </div>
           </div>
 
-          {/* Dynamic Nutritional Facts - Additional to the main 3 cards */}
-          {!isLoading && dynamicContent.nutritionalFacts.length > 0 && (
-            <div className="mb-12">
-              <h3 className="text-2xl font-bold mb-8 text-center" style={{ color: '#f39c12' }}>
-                Latest Nutritional Research
-              </h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                {dynamicContent.nutritionalFacts.map((article, index) => (
-                  <Link key={article.id} href={`/articles/${article.slug}`}>
-                    <div className="group cursor-pointer">
-                      <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105" 
-                           style={{ backgroundColor: '#FEF7E6' }}>
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center" 
-                               style={{ backgroundColor: '#f39c12' }}>
-                            <div className="w-4 h-4 bg-white rounded-full"></div>
-                          </div>
-                          <div className="text-xs font-medium" style={{ color: '#B8860B' }}>
-                            {article.category?.toUpperCase() || 'NUTRITIONAL'}
-                          </div>
-                        </div>
-                        <h4 className="text-lg font-medium mb-4" style={{ color: '#8B4513' }}>
-                          {article.title}
-                        </h4>
-                        {article.nutritionalData && (
-                          <div className="grid grid-cols-2 gap-3 mb-4">
-                            <div className="text-center bg-white rounded-lg p-2">
-                              <div className="text-lg font-bold" style={{ color: '#f39c12' }}>
-                                {article.nutritionalData.metric1?.value || 'N/A'}
-                              </div>
-                              <div className="text-xs" style={{ color: '#8B4513' }}>
-                                {article.nutritionalData.metric1?.label || 'Metric 1'}
-                              </div>
-                            </div>
-                            <div className="text-center bg-white rounded-lg p-2">
-                              <div className="text-lg font-bold" style={{ color: '#f39c12' }}>
-                                {article.nutritionalData.metric2?.value || 'N/A'}
-                              </div>
-                              <div className="text-xs" style={{ color: '#8B4513' }}>
-                                {article.nutritionalData.metric2?.label || 'Metric 2'}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        {article.nutritionalData?.keyBenefits && (
-                          <div className="space-y-1">
-                            {article.nutritionalData.keyBenefits.slice(0, 2).map((benefit: any, benefitIndex: number) => (
-                              <div key={benefitIndex} className="flex items-center text-sm" 
-                                   style={{ color: '#8B4513' }}>
-                                <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                                     style={{ backgroundColor: '#f39c12' }}></div>
-                                <span className="line-clamp-1">{benefit.benefit}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Explore All Button - Updated to match original design */}
           <div className="text-center">
-            <ViewMoreButton
-              text="Explore All Millet Varieties"
+            <button
               onClick={() => onNavigate?.('varieties')}
-              variant="secondary"
-            />
+              className="px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 inline-block text-center border-2"
+              style={{
+                borderColor: '#f39c12',
+                color: '#f39c12',
+                backgroundColor: 'transparent'
+              }}
+            >
+              Explore All Millet Varieties
+            </button>
           </div>
         </div>
 
@@ -656,129 +556,86 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Dynamic Featured Recipes */}
-          {!isLoading && dynamicContent.featuredRecipes.length > 0 ? (
-            dynamicContent.featuredRecipes.slice(0, 2).map((recipe, index) => (
-              <div key={recipe.id} className="group cursor-pointer" onClick={() => onNavigate?.('recipe', recipe)}>
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                  <div className="relative">
-                    {recipe.featuredImage ? (
-                      <ImageWithFallback
-                        src={recipe.featuredImage.url || recipe.featuredImage}
-                        alt={recipe.title}
-                        className="w-full h-48 object-cover"
-                      />
-                    ) : (
-                      <div className="h-48 bg-gray-200 rounded-t-2xl flex items-center justify-center">
-                        <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                             style={{ borderColor: '#e67e22' }}>
-                          <div className="w-12 h-12 border rounded" 
-                               style={{ borderColor: '#f39c12' }}></div>
-                        </div>
-                      </div>
-                    )}
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                      <Star size={14} className="text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium">{recipe.rating || '4.5'}</span>
-                    </div>
+          {/* Fallback: Golden Millet Pilaf */}
+          <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[0])}>
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+              <div className="relative">
+                <div className="h-48 bg-gray-200 rounded-t-2xl flex items-center justify-center">
+                  <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
+                       style={{ borderColor: '#e67e22' }}>
+                    <div className="w-12 h-12 border rounded" 
+                         style={{ borderColor: '#f39c12' }}></div>
                   </div>
-                  <div className="p-6">
-                    <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
-                      {recipe.title}
-                    </h4>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <Clock size={16} />
-                        <span>{recipe.readingTime || recipe.cookTime || '20'} min</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Users size={16} />
-                        <span>Serves {recipe.servings || '2-4'}</span>
-                      </div>
-                    </div>
+                </div>
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+                  <Star size={14} className="text-yellow-500 fill-current" />
+                  <span className="text-sm font-medium">4.7</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                  Golden Millet Pilaf
+                </h4>
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center space-x-1">
+                    <Clock size={16} />
+                    <span>25 min</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Users size={16} />
+                    <span>Serves 4</span>
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <>
-              {/* Fallback: Golden Millet Pilaf */}
-              <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[0])}>
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                  <div className="relative">
-                    <div className="h-48 bg-gray-200 rounded-t-2xl flex items-center justify-center">
-                      <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                           style={{ borderColor: '#e67e22' }}>
-                        <div className="w-12 h-12 border rounded" 
-                             style={{ borderColor: '#f39c12' }}></div>
-                      </div>
-                    </div>
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                      <Star size={14} className="text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium">4.7</span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
-                      Golden Millet Pilaf
-                    </h4>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <Clock size={16} />
-                        <span>25 min</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Users size={16} />
-                        <span>Serves 4</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
 
-              {/* Fallback: Millet Breakfast Bowl */}
-              <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[1])}>
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                  <div className="relative">
-                    <ImageWithFallback
-                      src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                      alt="Millet Breakfast Bowl"
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                      <Star size={14} className="text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium">4.0</span>
-                    </div>
+          {/* Fallback: Millet Breakfast Bowl */}
+          <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[1])}>
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+              <div className="relative">
+                <ImageWithFallback
+                  src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  alt="Millet Breakfast Bowl"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+                  <Star size={14} className="text-yellow-500 fill-current" />
+                  <span className="text-sm font-medium">4.0</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                  Millet Breakfast Bowl
+                </h4>
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center space-x-1">
+                    <Clock size={16} />
+                    <span>15 min</span>
                   </div>
-                  <div className="p-6">
-                    <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
-                      Millet Breakfast Bowl
-                    </h4>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <Clock size={16} />
-                        <span>15 min</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Users size={16} />
-                        <span>Serves 2</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center space-x-1">
+                    <Users size={16} />
+                    <span>Serves 2</span>
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
 
 
         {/* View All Millet Recipes Button - Updated to match original design */}
         <div className="text-center">
-          <ViewMoreButton
-            text="View All Millet Recipes"
+          <button
             onClick={() => onNavigate?.('recipes')}
-            variant="primary"
-          />
+            className="px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 inline-block text-center text-white"
+            style={{
+              backgroundColor: '#f39c12',
+              boxShadow: '0 4px 12px rgba(243, 156, 18, 0.3)'
+            }}
+          >
+            View All Millet Recipes
+          </button>
         </div>
       </div>
     </div>
