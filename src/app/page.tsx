@@ -44,7 +44,7 @@ export default function HomePage() {
         <div className="min-h-screen pt-16 px-4">
           <div className="max-w-4xl mx-auto text-center py-20">
             <h2 className="text-3xl font-bold mb-4">Recipes Coming Soon</h2>
-            <p className="text-gray-600">We're working on bringing you amazing recipes!</p>
+            <p className="text-gray-600">We&apos;re working on bringing you amazing recipes!</p>
           </div>
         </div>
       )}

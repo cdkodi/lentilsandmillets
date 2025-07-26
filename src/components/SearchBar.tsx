@@ -291,7 +291,7 @@ export default function SearchBar({
               onClick={() => handleSearch(query)}
               className="w-full p-3 text-sm text-center text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
             >
-              View all results for "{query}"
+              View all results for &quot;{query}&quot;
             </button>
           </div>
         </div>
