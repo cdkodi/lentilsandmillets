@@ -177,7 +177,7 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="grid md:grid-cols-3 gap-8 mb-16 items-stretch">
             {/* Loading skeletons for nutritional fact cards */}
             {isLoading && (
               Array.from({length: 3}).map((_, index) => (
@@ -306,17 +306,19 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             {!isLoading && milletArticles.length === 0 && (
               <>
                 {/* Pearl Millet Card */}
-                <div className="group cursor-pointer">
-                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105" 
-                       style={{ backgroundColor: 'var(--color-millets-muted)' }}>
+                <div className="group cursor-pointer h-full">
+                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
+                       style={{ backgroundColor: '#FEF7E6', minHeight: '520px' }}>
                     {/* Header with icon and label */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                            style={{ backgroundColor: '#f39c12' }}>
-                        <div className="w-4 h-4 border-2 border-white rounded-full"></div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2L13.09 7.26L20 9L13.09 10.74L12 16L10.91 10.74L4 9L10.91 7.26L12 2Z"/>
+                        </svg>
                       </div>
-                      <div className="text-xs font-medium" 
-                           style={{ color: 'var(--color-millets-secondary)' }}>
+                      <div className="text-xs font-medium tracking-wide" 
+                           style={{ color: '#B8860B' }}>
                         MILLETS
                       </div>
                     </div>
@@ -324,20 +326,22 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     {/* Image placeholder */}
                     <div className="h-40 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                       <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                           style={{ borderColor: 'var(--color-millets-secondary)' }}>
+                           style={{ borderColor: '#e67e22' }}>
                         <div className="w-12 h-12 border rounded" 
-                             style={{ borderColor: 'var(--color-millets-primary)' }}></div>
+                             style={{ borderColor: '#f39c12' }}></div>
                       </div>
                     </div>
 
-                    {/* Title */}
-                    <h4 className="text-lg font-medium mb-6 text-center" 
-                        style={{ color: '#8B4513' }}>
-                      Pearl Millet: Climate-Resilient Champion
-                    </h4>
+                    {/* Title with fixed height */}
+                    <div className="h-16 flex items-center justify-center mb-6">
+                      <h4 className="text-lg font-medium text-center leading-tight" 
+                          style={{ color: '#8B4513' }}>
+                        Pearl Millet: Climate-Resilient Champion
+                      </h4>
+                    </div>
 
                     {/* Metrics with exact values from screenshot */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 mb-6 bg-white rounded-lg p-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold mb-1" 
                              style={{ color: '#f39c12' }}>
@@ -361,23 +365,23 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     </div>
 
                     {/* Key Benefits with bullet styling */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex-grow">
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Drought-resistant supercrop</span>
                       </div>
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Grows in marginal lands</span>
                       </div>
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Carbon-negative farming</span>
                       </div>
                     </div>
@@ -385,17 +389,21 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                 </div>
 
                 {/* Finger Millet Card */}
-                <div className="group cursor-pointer">
-                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105" 
-                       style={{ backgroundColor: 'var(--color-millets-muted)' }}>
+                <div className="group cursor-pointer h-full">
+                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
+                       style={{ backgroundColor: '#FEF7E6', minHeight: '520px' }}>
                     {/* Header with icon and label */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                            style={{ backgroundColor: '#f39c12' }}>
-                        <div className="w-4 h-4 bg-white rounded"></div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <circle cx="12" cy="12" r="6"/>
+                          <circle cx="12" cy="12" r="2"/>
+                        </svg>
                       </div>
-                      <div className="text-xs font-medium" 
-                           style={{ color: 'var(--color-millets-secondary)' }}>
+                      <div className="text-xs font-medium tracking-wide" 
+                           style={{ color: '#B8860B' }}>
                         MILLETS
                       </div>
                     </div>
@@ -403,20 +411,22 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     {/* Image placeholder */}
                     <div className="h-40 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                       <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                           style={{ borderColor: 'var(--color-millets-secondary)' }}>
+                           style={{ borderColor: '#e67e22' }}>
                         <div className="w-12 h-12 border rounded" 
-                             style={{ borderColor: 'var(--color-millets-primary)' }}></div>
+                             style={{ borderColor: '#f39c12' }}></div>
                       </div>
                     </div>
 
-                    {/* Title */}
-                    <h4 className="text-lg font-medium mb-6 text-center" 
-                        style={{ color: '#8B4513' }}>
-                      Finger Millet: Natural Calcium Source
-                    </h4>
+                    {/* Title with fixed height */}
+                    <div className="h-16 flex items-center justify-center mb-6">
+                      <h4 className="text-lg font-medium text-center leading-tight" 
+                          style={{ color: '#8B4513' }}>
+                        Finger Millet: Natural Calcium Source
+                      </h4>
+                    </div>
 
                     {/* Metrics with exact values from screenshot */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 mb-6 bg-white rounded-lg p-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold mb-1" 
                              style={{ color: '#f39c12' }}>
@@ -440,23 +450,23 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     </div>
 
                     {/* Key Benefits with bullet styling */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex-grow">
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Superior to dairy for calcium</span>
                       </div>
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Supports bone health</span>
                       </div>
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Rich in amino acids</span>
                       </div>
                     </div>
@@ -464,17 +474,17 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                 </div>
 
                 {/* Foxtail Millet Card */}
-                <div className="group cursor-pointer">
-                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105" 
-                       style={{ backgroundColor: 'var(--color-millets-muted)' }}>
+                <div className="group cursor-pointer h-full">
+                  <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
+                       style={{ backgroundColor: '#FEF7E6', minHeight: '520px' }}>
                     {/* Header with icon and label */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                            style={{ backgroundColor: '#f39c12' }}>
                         <Star size={16} />
                       </div>
-                      <div className="text-xs font-medium" 
-                           style={{ color: 'var(--color-millets-secondary)' }}>
+                      <div className="text-xs font-medium tracking-wide" 
+                           style={{ color: '#B8860B' }}>
                         MILLETS
                       </div>
                     </div>
@@ -488,14 +498,16 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                       />
                     </div>
 
-                    {/* Title */}
-                    <h4 className="text-lg font-medium mb-6 text-center" 
-                        style={{ color: '#8B4513' }}>
-                      Foxtail Millet: Diabetic-Friendly Grain
-                    </h4>
+                    {/* Title with fixed height */}
+                    <div className="h-16 flex items-center justify-center mb-6">
+                      <h4 className="text-lg font-medium text-center leading-tight" 
+                          style={{ color: '#8B4513' }}>
+                        Foxtail Millet: Diabetic-Friendly Grain
+                      </h4>
+                    </div>
 
                     {/* Metrics with exact values from screenshot */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 mb-6 bg-white rounded-lg p-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold mb-1" 
                              style={{ color: '#f39c12' }}>
@@ -519,23 +531,23 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     </div>
 
                     {/* Key Benefits with bullet styling */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex-grow">
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Low glycemic index</span>
                       </div>
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>Balances blood sugar</span>
                       </div>
                       <div className="flex items-center text-sm" 
                            style={{ color: '#8B4513' }}>
                         <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
-                             style={{ backgroundColor: '#DAA520' }}></div>
+                             style={{ backgroundColor: '#f39c12' }}></div>
                         <span>High in B-vitamins</span>
                       </div>
                     </div>
