@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight, Clock, Users, Star, Filter } from 'lucide-react';
 import SearchBar from './SearchBar';
@@ -10,7 +10,89 @@ interface LentilsSectionProps {
   onSearch?: (query: string) => void;
 }
 
+interface CMSArticle {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  hero_image_url: string;
+  hero_image_id: number;
+  category: string;
+  card_position: string;
+  author: string;
+  published_at: string;
+}
+
+interface CMSRecipe {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  hero_image_url: string;
+  hero_image_id: number;
+  category: string;
+  card_position: string;
+  cook_time: number;
+  prep_time: number;
+  servings: number;
+  difficulty: string;
+  rating: number;
+}
+
 export default function LentilsSection({ onNavigate, onSearch }: LentilsSectionProps) {
+  const [lentilArticles, setLentilArticles] = useState<CMSArticle[]>([]);
+  const [lentilRecipes, setLentilRecipes] = useState<CMSRecipe[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch CMS content for lentil positions
+  useEffect(() => {
+    const fetchLentilContent = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch lentil articles for H7-H9 positions (lentil types)
+        const articlePositions = ['H7', 'H8', 'H9'];
+        const articles: CMSArticle[] = [];
+        
+        for (const position of articlePositions) {
+          const response = await fetch(`/api/cms/articles?status=published&card_position=${position}&limit=1`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.data?.articles?.length > 0) {
+              articles.push(data.data.articles[0]);
+            }
+          }
+        }
+        
+        setLentilArticles(articles);
+        
+        // Fetch lentil recipes for H10-H11 positions (featured recipes)
+        const recipePositions = ['H10', 'H11'];
+        const recipes: CMSRecipe[] = [];
+        
+        for (const position of recipePositions) {
+          const response = await fetch(`/api/cms/recipes?status=published&card_position=${position}&limit=1`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.data?.recipes?.length > 0) {
+              recipes.push(data.data.recipes[0]);
+            }
+          }
+        }
+        
+        setLentilRecipes(recipes);
+        
+      } catch (error) {
+        console.error('Error fetching lentil content:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLentilContent();
+  }, []);
+
+  // Fallback hardcoded data for positions without CMS content
   const lentilTypes = [
     {
       name: 'Red Lentils',
@@ -111,29 +193,79 @@ export default function LentilsSection({ onNavigate, onSearch }: LentilsSectionP
 
         {/* Lentil Types Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-20">
-          {lentilTypes.map((lentil, index) => (
-            <div key={index} className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                <ImageWithFallback
-                  src={lentil.image}
-                  alt={lentil.name}
-                  className="w-full h-64 object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <h3 className="text-xl mb-2">{lentil.name}</h3>
-                  <p className="text-sm opacity-90 mb-3">{lentil.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-1">
-                      <Clock size={16} />
-                      <span className="text-sm">{lentil.cookTime}</span>
+          {loading ? (
+            // Loading skeleton
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="relative overflow-hidden rounded-2xl shadow-lg bg-gray-200 animate-pulse">
+                  <div className="w-full h-64 bg-gray-300"></div>
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="h-4 bg-gray-400 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-400 rounded mb-3 w-3/4"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 bg-gray-400 rounded w-16"></div>
+                      <div className="h-3 bg-gray-400 rounded w-4"></div>
                     </div>
-                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <>
+              {/* Render CMS articles first */}
+              {lentilArticles.map((article, index) => (
+                <div 
+                  key={`cms-${article.id}`} 
+                  className="group cursor-pointer"
+                  onClick={() => window.location.href = `/articles/${article.slug}`}
+                >
+                  <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                    <ImageWithFallback
+                      src={article.hero_image_url}
+                      alt={article.title}
+                      className="w-full h-64 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-6 left-6 right-6 text-white">
+                      <h3 className="text-xl mb-2">{article.title}</h3>
+                      <p className="text-sm opacity-90 mb-3">{article.excerpt}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm">By {article.author}</span>
+                        </div>
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Fill remaining slots with fallback data */}
+              {lentilTypes.slice(0, Math.max(0, 3 - lentilArticles.length)).map((lentil, index) => (
+                <div key={`fallback-${index}`} className="group cursor-pointer">
+                  <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                    <ImageWithFallback
+                      src={lentil.image}
+                      alt={lentil.name}
+                      className="w-full h-64 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-6 left-6 right-6 text-white">
+                      <h3 className="text-xl mb-2">{lentil.name}</h3>
+                      <p className="text-sm opacity-90 mb-3">{lentil.description}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-1">
+                          <Clock size={16} />
+                          <span className="text-sm">{lentil.cookTime}</span>
+                        </div>
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Featured Recipes */}
@@ -147,42 +279,101 @@ export default function LentilsSection({ onNavigate, onSearch }: LentilsSectionP
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {featuredRecipes.map((recipe) => (
-            <div
-              key={recipe.id}
-              className="group cursor-pointer"
-              onClick={() => onNavigate?.('recipe', recipe)}
-            >
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                <div className="relative">
-                  <ImageWithFallback
-                    src={recipe.image}
-                    alt={recipe.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                    <div className="flex items-center space-x-1">
-                      <Star size={14} className="text-yellow-500 fill-current" />
-                      <span className="text-sm">{recipe.rating}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl mb-3">{recipe.title}</h4>
-                  <div className="flex items-center justify-between text-sm opacity-70">
-                    <div className="flex items-center space-x-1">
-                      <Clock size={16} />
-                      <span>{recipe.time}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users size={16} />
-                      <span>Serves {recipe.serves}</span>
+          {loading ? (
+            // Loading skeleton for recipes
+            Array(2).fill(0).map((_, i) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="bg-gray-200 rounded-2xl shadow-lg overflow-hidden animate-pulse">
+                  <div className="w-full h-48 bg-gray-300"></div>
+                  <div className="p-6">
+                    <div className="h-4 bg-gray-400 rounded mb-3"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 bg-gray-400 rounded w-16"></div>
+                      <div className="h-3 bg-gray-400 rounded w-20"></div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <>
+              {/* Render CMS recipes first */}
+              {lentilRecipes.map((recipe) => (
+                <div
+                  key={`cms-recipe-${recipe.id}`}
+                  className="group cursor-pointer"
+                  onClick={() => window.location.href = `/recipes/${recipe.slug}`}
+                >
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                    <div className="relative">
+                      <ImageWithFallback
+                        src={recipe.hero_image_url}
+                        alt={recipe.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                        <div className="flex items-center space-x-1">
+                          <Star size={14} className="text-yellow-500 fill-current" />
+                          <span className="text-sm">{recipe.rating || 4.5}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h4 className="text-xl mb-3">{recipe.title}</h4>
+                      <div className="flex items-center justify-between text-sm opacity-70">
+                        <div className="flex items-center space-x-1">
+                          <Clock size={16} />
+                          <span>{recipe.cook_time + recipe.prep_time}min</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Users size={16} />
+                          <span>Serves {recipe.servings}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Fill remaining slots with fallback data */}
+              {featuredRecipes.slice(0, Math.max(0, 2 - lentilRecipes.length)).map((recipe) => (
+                <div
+                  key={`fallback-recipe-${recipe.id}`}
+                  className="group cursor-pointer"
+                  onClick={() => onNavigate?.('recipe', recipe)}
+                >
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                    <div className="relative">
+                      <ImageWithFallback
+                        src={recipe.image}
+                        alt={recipe.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                        <div className="flex items-center space-x-1">
+                          <Star size={14} className="text-yellow-500 fill-current" />
+                          <span className="text-sm">{recipe.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h4 className="text-xl mb-3">{recipe.title}</h4>
+                      <div className="flex items-center justify-between text-sm opacity-70">
+                        <div className="flex items-center space-x-1">
+                          <Clock size={16} />
+                          <span>{recipe.time}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Users size={16} />
+                          <span>Serves {recipe.serves}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {/* CTA */}

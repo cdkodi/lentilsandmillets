@@ -14,7 +14,7 @@ interface Article {
 
 async function getPublishedArticles(): Promise<Article[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/articles`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/articles-direct?status=published`, {
       next: { revalidate: 60 } // Revalidate every minute
     })
     
@@ -23,10 +23,7 @@ async function getPublishedArticles(): Promise<Article[]> {
     }
     
     const data = await res.json()
-    const articles = data.docs || data
-    
-    // Filter only published articles
-    return articles.filter((article: Article) => article.status === 'published')
+    return data.docs || []
   } catch (error) {
     console.error('Error fetching articles:', error)
     return []

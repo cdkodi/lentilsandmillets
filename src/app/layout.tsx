@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import '../styles/globals.css'
+import HeaderWithLinks from '../../Front-End/components/HeaderWithLinks'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -26,7 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className={inter.className}>
-        {children}
+        <HeaderWithLinks />
+        <main className="pt-16">
+          {children}
+        </main>
       </body>
     </html>
   )

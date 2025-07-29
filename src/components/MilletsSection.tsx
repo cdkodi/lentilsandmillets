@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { ArrowRight, Clock, Users, Star, Leaf, Filter, BookOpen, Shield, TrendingUp, Droplets, Thermometer } from 'lucide-react';
+import { ArrowRight, Clock, Users, Star, Leaf, Filter, Shield, TrendingUp, Thermometer, BookOpen } from 'lucide-react';
 import SearchBar from './SearchBar';
 import Footer from './Footer';
 
@@ -12,8 +12,95 @@ interface MilletsSectionProps {
   onSearch?: (query: string) => void;
 }
 
+interface CMSArticle {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  hero_image_url: string;
+  hero_image_id: number;
+  category: string;
+  card_position: string;
+  author: string;
+  published_at: string;
+}
+
+interface CMSRecipe {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  hero_image_url: string;
+  hero_image_id: number;
+  category: string;
+  card_position: string;
+  cook_time: number;
+  prep_time: number;
+  servings: number;
+  difficulty: string;
+  rating: number;
+}
+
 export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionProps) {
-  // Simplified component without dynamic content for now
+  const [milletArticles, setMilletArticles] = useState<CMSArticle[]>([])
+  const [milletTypeArticles, setMilletTypeArticles] = useState<CMSArticle[]>([])
+  const [milletRecipes, setMilletRecipes] = useState<CMSRecipe[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchMilletContent = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch research articles (without card_position assignment)
+        const researchResponse = await fetch('/api/cms/articles?status=published&category=millets&limit=10')
+        if (researchResponse.ok) {
+          const data = await researchResponse.json()
+          const unassignedArticles = (data.data?.articles || []).filter(article => !article.card_position)
+          setMilletArticles(unassignedArticles.slice(0, 3))
+        }
+        
+        // Fetch millet type articles for H15-H17 positions
+        const typePositions = ['H15', 'H16', 'H17'];
+        const typeArticles: CMSArticle[] = [];
+        
+        for (const position of typePositions) {
+          const response = await fetch(`/api/cms/articles?status=published&card_position=${position}&limit=1`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.data?.articles?.length > 0) {
+              typeArticles.push(data.data.articles[0]);
+            }
+          }
+        }
+        
+        setMilletTypeArticles(typeArticles);
+        
+        // Fetch millet recipes for H18-H19 positions
+        const recipePositions = ['H18', 'H19'];
+        const recipes: CMSRecipe[] = [];
+        
+        for (const position of recipePositions) {
+          const response = await fetch(`/api/cms/recipes?status=published&card_position=${position}&limit=1`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.data?.recipes?.length > 0) {
+              recipes.push(data.data.recipes[0]);
+            }
+          }
+        }
+        
+        setMilletRecipes(recipes);
+        
+      } catch (error) {
+        console.error('Error fetching millet content:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMilletContent()
+  }, [])
 
   const milletTypes = [
     {
@@ -97,14 +184,11 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-16 items-stretch">
-            {/* Always show three cards matching the reference design */}
-            
-            {/* Pearl Millet Card - Climate Resilient */}
-            <div className="group cursor-pointer h-full">
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {/* Pearl Millet Card */}
+            <div className="group cursor-pointer">
               <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
                    style={{ backgroundColor: '#FEF7E6' }}>
-                {/* Header with icon and label */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                        style={{ backgroundColor: '#f39c12' }}>
@@ -115,62 +199,52 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     MILLETS
                   </div>
                 </div>
-
-                {/* Image placeholder */}
-                <div className="h-32 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                  <div className="w-16 h-16 border-2 rounded flex items-center justify-center" 
-                       style={{ borderColor: '#ccc' }}>
-                    <div className="w-8 h-8 border rounded" 
-                         style={{ borderColor: '#999' }}></div>
-                  </div>
+                
+                {/* Pearl Millet Image */}
+                <div className="h-32 rounded-xl mb-4 overflow-hidden">
+                  <ImageWithFallback
+                    src="https://images.unsplash.com/photo-1603833797131-3d9e8cff5058?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Pearl Millet"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-
-                {/* Title */}
+                
                 <h4 className="text-lg font-medium mb-4 text-center leading-tight" 
                     style={{ color: '#8B4513' }}>
                   Pearl Millet: Climate-Resilient Champion
                 </h4>
-
-                {/* Metrics with white background boxes */}
+                
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="text-center bg-white rounded-lg p-3">
-                    <div className="text-xl font-bold mb-1" 
-                         style={{ color: '#f39c12' }}>
+                    <div className="text-xl font-bold mb-1" style={{ color: '#f39c12' }}>
                       200mm
                     </div>
-                    <div className="text-xs" 
-                         style={{ color: '#8B4513' }}>
+                    <div className="text-xs" style={{ color: '#8B4513' }}>
                       Min Rainfall
                     </div>
                   </div>
                   <div className="text-center bg-white rounded-lg p-3">
-                    <div className="text-xl font-bold mb-1" 
-                         style={{ color: '#f39c12' }}>
+                    <div className="text-xl font-bold mb-1" style={{ color: '#f39c12' }}>
                       46°C
                     </div>
-                    <div className="text-xs" 
-                         style={{ color: '#8B4513' }}>
+                    <div className="text-xs" style={{ color: '#8B4513' }}>
                       Heat Tolerance
                     </div>
                   </div>
                 </div>
-
-                {/* Key Benefits */}
+                
                 <div className="space-y-2 flex-grow">
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Drought-resistant supercrop</span>
                   </div>
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Grows in marginal lands</span>
                   </div>
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Carbon-negative farming</span>
@@ -178,12 +252,11 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                 </div>
               </div>
             </div>
-
-            {/* Finger Millet Card - Natural Calcium Source */}
-            <div className="group cursor-pointer h-full">
+            
+            {/* Finger Millet Card */}
+            <div className="group cursor-pointer">
               <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
                    style={{ backgroundColor: '#FEF7E6' }}>
-                {/* Header with icon and label */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                        style={{ backgroundColor: '#f39c12' }}>
@@ -194,62 +267,52 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     MILLETS
                   </div>
                 </div>
-
-                {/* Image placeholder */}
-                <div className="h-32 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                  <div className="w-16 h-16 border-2 rounded flex items-center justify-center" 
-                       style={{ borderColor: '#ccc' }}>
-                    <div className="w-8 h-8 border rounded" 
-                         style={{ borderColor: '#999' }}></div>
-                  </div>
+                
+                {/* Finger Millet Image */}
+                <div className="h-32 rounded-xl mb-4 overflow-hidden">
+                  <ImageWithFallback
+                    src="https://images.unsplash.com/photo-1570495675092-84bde2eceb43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Finger Millet"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-
-                {/* Title */}
+                
                 <h4 className="text-lg font-medium mb-4 text-center leading-tight" 
                     style={{ color: '#8B4513' }}>
                   Finger Millet: Natural Calcium Source
                 </h4>
-
-                {/* Metrics with white background boxes */}
+                
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="text-center bg-white rounded-lg p-3">
-                    <div className="text-xl font-bold mb-1" 
-                         style={{ color: '#f39c12' }}>
+                    <div className="text-xl font-bold mb-1" style={{ color: '#f39c12' }}>
                       344mg
                     </div>
-                    <div className="text-xs" 
-                         style={{ color: '#8B4513' }}>
+                    <div className="text-xs" style={{ color: '#8B4513' }}>
                       Calcium per 100g
                     </div>
                   </div>
                   <div className="text-center bg-white rounded-lg p-3">
-                    <div className="text-xl font-bold mb-1" 
-                         style={{ color: '#f39c12' }}>
+                    <div className="text-xl font-bold mb-1" style={{ color: '#f39c12' }}>
                       3.9mg
                     </div>
-                    <div className="text-xs" 
-                         style={{ color: '#8B4513' }}>
+                    <div className="text-xs" style={{ color: '#8B4513' }}>
                       Iron per 100g
                     </div>
                   </div>
                 </div>
-
-                {/* Key Benefits */}
+                
                 <div className="space-y-2 flex-grow">
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Superior to dairy for calcium</span>
                   </div>
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Supports bone health</span>
                   </div>
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Rich in amino acids</span>
@@ -257,12 +320,11 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                 </div>
               </div>
             </div>
-
-            {/* Foxtail Millet Card - Diabetic Friendly with real image */}
-            <div className="group cursor-pointer h-full">
+            
+            {/* Foxtail Millet Card */}
+            <div className="group cursor-pointer">
               <div className="rounded-2xl p-6 shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 h-full flex flex-col" 
                    style={{ backgroundColor: '#FEF7E6' }}>
-                {/* Header with icon and label */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" 
                        style={{ backgroundColor: '#f39c12' }}>
@@ -273,8 +335,8 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     MILLETS
                   </div>
                 </div>
-
-                {/* Real image like in original reference */}
+                
+                {/* Foxtail Millet Image */}
                 <div className="h-32 rounded-xl mb-4 overflow-hidden">
                   <ImageWithFallback
                     src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -282,53 +344,43 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
                     className="w-full h-full object-cover"
                   />
                 </div>
-
-                {/* Title */}
+                
                 <h4 className="text-lg font-medium mb-4 text-center leading-tight" 
                     style={{ color: '#8B4513' }}>
                   Foxtail Millet: Diabetic-Friendly Grain
                 </h4>
-
-                {/* Metrics with white background boxes */}
+                
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="text-center bg-white rounded-lg p-3">
-                    <div className="text-xl font-bold mb-1" 
-                         style={{ color: '#f39c12' }}>
+                    <div className="text-xl font-bold mb-1" style={{ color: '#f39c12' }}>
                       50
                     </div>
-                    <div className="text-xs" 
-                         style={{ color: '#8B4513' }}>
+                    <div className="text-xs" style={{ color: '#8B4513' }}>
                       Glycemic Index
                     </div>
                   </div>
                   <div className="text-center bg-white rounded-lg p-3">
-                    <div className="text-xl font-bold mb-1" 
-                         style={{ color: '#f39c12' }}>
+                    <div className="text-xl font-bold mb-1" style={{ color: '#f39c12' }}>
                       12.3g
                     </div>
-                    <div className="text-xs" 
-                         style={{ color: '#8B4513' }}>
+                    <div className="text-xs" style={{ color: '#8B4513' }}>
                       Protein per 100g
                     </div>
                   </div>
                 </div>
-
-                {/* Key Benefits */}
+                
                 <div className="space-y-2 flex-grow">
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Low glycemic index</span>
                   </div>
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>Balances blood sugar</span>
                   </div>
-                  <div className="flex items-center text-sm" 
-                       style={{ color: '#8B4513' }}>
+                  <div className="flex items-center text-sm" style={{ color: '#8B4513' }}>
                     <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
                          style={{ backgroundColor: '#f39c12' }}></div>
                     <span>High in B-vitamins</span>
@@ -459,85 +511,86 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
             </div>
           </div>
 
-          {/* Millet Variety Cards - Updated to match original design */}
+          {/* Millet Variety Cards - Updated to use CMS data */}
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {/* Pearl Millet */}
-            <div className="group cursor-pointer">
-              <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                <div className="h-48 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                  <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                       style={{ borderColor: '#e67e22' }}>
-                    <div className="w-12 h-12 border rounded" 
-                         style={{ borderColor: '#f39c12' }}></div>
+            {loading ? (
+              // Loading skeleton
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="group cursor-pointer">
+                  <div className="bg-gray-200 rounded-2xl shadow-lg p-6 animate-pulse">
+                    <div className="h-48 bg-gray-300 rounded-xl mb-4"></div>
+                    <div className="h-4 bg-gray-400 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-400 rounded mb-3 w-3/4"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 bg-gray-400 rounded w-20"></div>
+                      <div className="h-3 bg-gray-400 rounded w-4"></div>
+                    </div>
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
-                  Pearl Millet
-                </h3>
-                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-                  High protein, gluten-free ancient grain that is rich in magnesium
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    Excellent for nutrition
-                  </span>
-                  <ArrowRight size={16} style={{ color: '#f39c12' }} 
-                             className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
-
-            {/* Finger Millet */}
-            <div className="group cursor-pointer">
-              <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                <div className="h-48 bg-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                  <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                       style={{ borderColor: '#e67e22' }}>
-                    <div className="w-12 h-12 border rounded" 
-                         style={{ borderColor: '#f39c12' }}></div>
+              ))
+            ) : (
+              <>
+                {/* Render CMS articles first */}
+                {milletTypeArticles.map((article) => (
+                  <div 
+                    key={`cms-millet-${article.id}`} 
+                    className="group cursor-pointer"
+                    onClick={() => window.location.href = `/articles/${article.slug}`}
+                  >
+                    <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                      <div className="h-48 rounded-xl mb-4 overflow-hidden">
+                        <ImageWithFallback
+                          src={article.hero_image_url}
+                          alt={article.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
+                        {article.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                        {article.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          By {article.author}
+                        </span>
+                        <ArrowRight size={16} style={{ color: '#f39c12' }} 
+                                   className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
-                  Finger Millet
-                </h3>
-                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-                  Calcium powerhouse, perfect for health because of its high mineral
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    Perfect for nutrition
-                  </span>
-                  <ArrowRight size={16} style={{ color: '#f39c12' }} 
-                             className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
-
-            {/* Foxtail Millet */}
-            <div className="group cursor-pointer">
-              <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                <div className="h-48 rounded-xl mb-4 overflow-hidden">
-                  <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="Foxtail Millet"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
-                  Foxtail Millet
-                </h3>
-                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-                  Low glycemic index, diabetic-friendly. Contains protein and fiber
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    Controls for nutrition
-                  </span>
-                  <ArrowRight size={16} style={{ color: '#f39c12' }} 
-                             className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
+                ))}
+                
+                {/* Fill remaining slots with fallback data */}
+                {milletTypes.slice(0, Math.max(0, 3 - milletTypeArticles.length)).map((millet, index) => (
+                  <div key={`fallback-millet-${index}`} className="group cursor-pointer">
+                    <div className="bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                      <div className="h-48 rounded-xl mb-4 overflow-hidden">
+                        <ImageWithFallback
+                          src={millet.image}
+                          alt={millet.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2" style={{ color: '#8B4513' }}>
+                        {millet.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                        {millet.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          {millet.benefits}
+                        </span>
+                        <ArrowRight size={16} style={{ color: '#f39c12' }} 
+                                   className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </div>
 
@@ -556,73 +609,232 @@ export default function MilletsSection({ onNavigate, onSearch }: MilletsSectionP
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Fallback: Golden Millet Pilaf */}
-          <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[0])}>
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-              <div className="relative">
-                <div className="h-48 bg-gray-200 rounded-t-2xl flex items-center justify-center">
-                  <div className="w-20 h-20 border-2 rounded flex items-center justify-center" 
-                       style={{ borderColor: '#e67e22' }}>
-                    <div className="w-12 h-12 border rounded" 
-                         style={{ borderColor: '#f39c12' }}></div>
-                  </div>
-                </div>
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                  <Star size={14} className="text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium">4.7</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
-                  Golden Millet Pilaf
-                </h4>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock size={16} />
-                    <span>25 min</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Users size={16} />
-                    <span>Serves 4</span>
+          {loading ? (
+            // Loading skeleton for recipes
+            Array(2).fill(0).map((_, i) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="bg-gray-200 rounded-2xl shadow-lg overflow-hidden animate-pulse">
+                  <div className="w-full h-48 bg-gray-300"></div>
+                  <div className="p-6">
+                    <div className="h-4 bg-gray-400 rounded mb-3"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 bg-gray-400 rounded w-16"></div>
+                      <div className="h-3 bg-gray-400 rounded w-20"></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Fallback: Millet Breakfast Bowl */}
-          <div className="group cursor-pointer" onClick={() => onNavigate?.('recipe', featuredRecipes[1])}>
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-              <div className="relative">
-                <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Millet Breakfast Bowl"
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                  <Star size={14} className="text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium">4.0</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
-                  Millet Breakfast Bowl
-                </h4>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock size={16} />
-                    <span>15 min</span>
+            ))
+          ) : (
+            <>
+              {/* Render CMS recipes first */}
+              {milletRecipes.map((recipe) => (
+                <div
+                  key={`cms-millet-recipe-${recipe.id}`}
+                  className="group cursor-pointer"
+                  onClick={() => window.location.href = `/recipes/${recipe.slug}`}
+                >
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                    <div className="relative">
+                      <ImageWithFallback
+                        src={recipe.hero_image_url}
+                        alt={recipe.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+                        <Star size={14} className="text-yellow-500 fill-current" />
+                        <span className="text-sm font-medium">{recipe.rating || 4.5}</span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                        {recipe.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Clock size={16} />
+                          <span>{recipe.cook_time + recipe.prep_time}min</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Users size={16} />
+                          <span>Serves {recipe.servings}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Users size={16} />
-                    <span>Serves 2</span>
+                </div>
+              ))}
+              
+              {/* Fill remaining slots with fallback data */}
+              {featuredRecipes.slice(0, Math.max(0, 2 - milletRecipes.length)).map((recipe, index) => (
+                <div
+                  key={`fallback-millet-recipe-${recipe.id}`}
+                  className="group cursor-pointer"
+                  onClick={() => onNavigate?.('recipe', recipe)}
+                >
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                    <div className="relative">
+                      <ImageWithFallback
+                        src={recipe.image}
+                        alt={recipe.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+                        <Star size={14} className="text-yellow-500 fill-current" />
+                        <span className="text-sm font-medium">{recipe.rating}</span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h4 className="text-xl font-semibold mb-3" style={{ color: '#8B4513' }}>
+                        {recipe.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Clock size={16} />
+                          <span>{recipe.time}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Users size={16} />
+                          <span>Serves {recipe.serves}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              ))}
+            </>
+          )}
         </div>
 
+        {/* Latest Millet Research Articles Section */}
+        {milletArticles.length > 0 && (
+          <div className="mb-20">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl mb-6 font-bold" 
+                  style={{ 
+                    color: '#f39c12',
+                    fontFamily: 'Playfair Display, serif'
+                  }}>
+                Latest Millet Research
+              </h2>
+              <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                Stay updated with the latest scientific findings and insights about millets
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              {milletArticles.map((article, index) => {
+                const factoidData = article.factoid_data || {}
+                const highlights = factoidData.highlights || []
+                
+                return (
+                  <div key={article.id} className="group cursor-pointer" 
+                       onClick={() => window.open(`/articles/${article.slug}`, '_blank')}>
+                    <div className="bg-white rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105 overflow-hidden">
+                      {/* Article Header */}
+                      <div className="p-6 pb-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center" 
+                               style={{ backgroundColor: '#f39c12' }}>
+                            <BookOpen size={20} className="text-white" />
+                          </div>
+                          <div className="text-xs font-medium tracking-wide" 
+                               style={{ color: '#B8860B' }}>
+                            RESEARCH
+                          </div>
+                        </div>
+                        
+                        <h4 className="text-lg font-semibold mb-3 leading-tight" 
+                            style={{ color: '#8B4513' }}>
+                          {article.title}
+                        </h4>
+                        
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                          {article.excerpt}
+                        </p>
+                        
+                        {/* Research Metrics */}
+                        {(factoidData.primary_stat || factoidData.secondary_stat) && (
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            {factoidData.primary_stat && (
+                              <div className="text-center rounded-lg p-3" 
+                                   style={{ backgroundColor: '#FEF7E6' }}>
+                                <div className="text-lg font-bold mb-1" 
+                                     style={{ color: '#f39c12' }}>
+                                  {factoidData.primary_stat.value}
+                                </div>
+                                <div className="text-xs" 
+                                     style={{ color: '#8B4513' }}>
+                                  {factoidData.primary_stat.label}
+                                </div>
+                              </div>
+                            )}
+                            {factoidData.secondary_stat && (
+                              <div className="text-center rounded-lg p-3" 
+                                   style={{ backgroundColor: '#FEF7E6' }}>
+                                <div className="text-lg font-bold mb-1" 
+                                     style={{ color: '#f39c12' }}>
+                                  {factoidData.secondary_stat.value}
+                                </div>
+                                <div className="text-xs" 
+                                     style={{ color: '#8B4513' }}>
+                                  {factoidData.secondary_stat.label}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Key Findings */}
+                        {highlights.length > 0 && (
+                          <div className="space-y-2">
+                            {highlights.slice(0, 3).map((highlight: string, highlightIndex: number) => (
+                              <div key={highlightIndex} className="flex items-center text-sm" 
+                                   style={{ color: '#8B4513' }}>
+                                <div className="w-2 h-2 rounded-full mr-3 flex-shrink-0" 
+                                     style={{ backgroundColor: '#f39c12' }}></div>
+                                <span>{highlight}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Read More */}
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500">
+                              By {article.author}
+                            </span>
+                            <div className="flex items-center" style={{ color: '#f39c12' }}>
+                              <span className="mr-1">Read More</span>
+                              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            
+            {/* View All Articles Button */}
+            <div className="text-center mb-12">
+              <Link href="/articles">
+                <button
+                  className="px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 inline-block text-center border-2"
+                  style={{
+                    borderColor: '#f39c12',
+                    color: '#f39c12',
+                    backgroundColor: 'transparent'
+                  }}
+                >
+                  View All Millet Articles
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* View All Millet Recipes Button - Updated to match original design */}
         <div className="text-center">

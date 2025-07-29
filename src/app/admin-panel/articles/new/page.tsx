@@ -113,7 +113,7 @@ export default function NewArticlePage() {
 
       console.log('Creating article:', articleData)
 
-      const response = await fetch('/api/articles', {
+      const response = await fetch('/api/articles-direct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

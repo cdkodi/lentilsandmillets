@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import FactoidCard from './FactoidCard';
 
 interface FactoidsSection {
@@ -8,9 +8,60 @@ interface FactoidsSection {
   onNavigate?: (section: string, data?: any) => void;
 }
 
+interface CMSArticle {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  hero_image_url: string;
+  hero_image_id: number;
+  category: string;
+  card_position: string;
+  factoid_data: {
+    icon: string;
+    primary_stat: { value: string; label: string };
+    secondary_stat: { value: string; label: string };
+    highlights: string[];
+  };
+  author: string;
+}
+
 export default function FactoidsSection({ category, onNavigate }: FactoidsSection) {
   const isLentils = category === 'lentils';
-  
+  const [factoidArticles, setFactoidArticles] = useState<CMSArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Determine card positions based on category
+  const cardPositions = isLentils ? ['H4', 'H5', 'H6'] : ['H12', 'H13', 'H14'];
+
+  useEffect(() => {
+    const fetchFactoidArticles = async () => {
+      try {
+        const articles: CMSArticle[] = [];
+        
+        // Fetch articles for each card position
+        for (const position of cardPositions) {
+          const response = await fetch(`/api/cms/articles?status=published&card_position=${position}&limit=1`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.data?.articles?.length > 0) {
+              articles.push(data.data.articles[0]);
+            }
+          }
+        }
+        
+        setFactoidArticles(articles);
+      } catch (error) {
+        console.error('Error fetching factoid articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFactoidArticles();
+  }, [category, cardPositions]);
+
+  // Fallback hardcoded data for positions without CMS content
   const lentilsFactoids = [
     {
       id: 'red-lentils-protein',
@@ -113,7 +164,33 @@ export default function FactoidsSection({ category, onNavigate }: FactoidsSectio
     }
   ];
 
-  const factoids = isLentils ? lentilsFactoids : milletsFactoids;
+  // Transform CMS articles to factoid format
+  const transformCMSToFactoid = (article: CMSArticle) => ({
+    id: article.id.toString(),
+    title: article.title,
+    category: article.category as 'lentils' | 'millets',
+    image: article.hero_image_url || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    icon: article.factoid_data?.icon || 'nutrition',
+    stats: {
+      primary: article.factoid_data?.primary_stat || { value: 'N/A', label: 'Data' },
+      secondary: article.factoid_data?.secondary_stat || { value: 'N/A', label: 'Info' }
+    },
+    highlights: article.factoid_data?.highlights || []
+  });
+
+  // Use CMS data when available, fallback to hardcoded data
+  const cmsFactoids = factoidArticles.map(transformCMSToFactoid);
+  const fallbackFactoids = isLentils ? lentilsFactoids : milletsFactoids;
+  
+  // Combine CMS and fallback data (CMS takes priority)
+  const factoids = [...cmsFactoids];
+  
+  // Fill remaining slots with fallback data if needed
+  const maxFactoids = 3;
+  const remainingSlots = maxFactoids - factoids.length;
+  if (remainingSlots > 0) {
+    factoids.push(...fallbackFactoids.slice(0, remainingSlots));
+  }
   
   const themeColors = isLentils ? {
     primary: 'var(--color-lentils-secondary)',
@@ -126,7 +203,21 @@ export default function FactoidsSection({ category, onNavigate }: FactoidsSectio
   };
 
   const handleFactoidClick = (factoid: any) => {
-    // Create a mock article based on the factoid
+    // Check if this is a CMS article (has numeric id) or fallback data (string id)
+    const isCMSArticle = typeof factoid.id === 'string' && !isNaN(Number(factoid.id));
+    
+    if (isCMSArticle) {
+      // For CMS articles, navigate to the actual article page
+      const cmsArticle = factoidArticles.find(article => article.id.toString() === factoid.id);
+      if (cmsArticle) {
+        console.log('Navigating to CMS article:', cmsArticle.slug);
+        // Use window.location.href for better compatibility
+        window.location.href = `/articles/${cmsArticle.slug}`;
+        return;
+      }
+    }
+    
+    // Create a mock article based on the factoid for fallback data
     const article = {
       id: factoid.id + '-article',
       title: `The Complete Guide to ${factoid.title}`,
@@ -168,13 +259,28 @@ export default function FactoidsSection({ category, onNavigate }: FactoidsSectio
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {factoids.map((factoid) => (
-            <FactoidCard
-              key={factoid.id}
-              factoid={factoid}
-              onClick={handleFactoidClick}
-            />
-          ))}
+          {loading ? (
+            // Loading skeleton
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 animate-pulse">
+                <div className="h-48 bg-gray-200 rounded-xl mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-100 rounded mb-4"></div>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="h-16 bg-gray-100 rounded"></div>
+                  <div className="h-16 bg-gray-100 rounded"></div>
+                </div>
+              </div>
+            ))
+          ) : (
+            factoids.map((factoid) => (
+              <FactoidCard
+                key={factoid.id}
+                factoid={factoid}
+                onClick={handleFactoidClick}
+              />
+            ))
+          )}
         </div>
 
         <div className="text-center mt-12">

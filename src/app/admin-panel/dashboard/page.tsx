@@ -29,13 +29,13 @@ export default function AdminDashboard() {
     try {
       console.log('Fetching data from Payload API...')
       
-      // Fetch recipes and articles using Payload API
+      // Fetch recipes and articles using direct API (much faster than Payload)
       const [recipesRes, articlesRes] = await Promise.all([
-        fetch('/api/recipes').then(res => {
+        fetch('/api/recipes-direct?status=').then(res => {
           console.log('Recipes response status:', res.status)
           return res
         }),
-        fetch('/api/articles').then(res => {
+        fetch('/api/articles-direct?status=').then(res => {
           console.log('Articles response status:', res.status)
           return res
         })

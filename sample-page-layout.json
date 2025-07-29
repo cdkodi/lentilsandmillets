@@ -1,0 +1,57 @@
+{
+  "pageName": "Millets Page",
+  "pageSlug": "millets",
+  "sections": [
+    {
+      "sectionName": "Nutritional Facts",
+      "sectionType": "nutritional-facts",
+      "contentFilter": {
+        "productLine": "millets",
+        "category": "nutritional",
+        "featuredOnly": false
+      },
+      "displaySettings": {
+        "maxItems": 3,
+        "sortBy": "priority",
+        "showMoreButton": true,
+        "moreButtonText": "View All Nutritional Facts",
+        "moreButtonLink": "/millets/nutrition"
+      },
+      "enabled": true
+    },
+    {
+      "sectionName": "Featured Recipes",
+      "sectionType": "featured-recipes",
+      "contentFilter": {
+        "productLine": "millets",
+        "category": "recipe",
+        "featuredOnly": true
+      },
+      "displaySettings": {
+        "maxItems": 4,
+        "sortBy": "priority",
+        "showMoreButton": true,
+        "moreButtonText": "View All Millet Recipes",
+        "moreButtonLink": "/recipes/millets"
+      },
+      "enabled": true
+    },
+    {
+      "sectionName": "Latest Research",
+      "sectionType": "research",
+      "contentFilter": {
+        "productLine": "millets",
+        "category": "research",
+        "featuredOnly": false
+      },
+      "displaySettings": {
+        "maxItems": 3,
+        "sortBy": "publishedAt",
+        "showMoreButton": true,
+        "moreButtonText": "View All Research",
+        "moreButtonLink": "/research/millets"
+      },
+      "enabled": true
+    }
+  ]
+}

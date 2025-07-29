@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Upload</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .upload-area { border: 2px dashed #ccc; padding: 20px; margin: 20px 0; text-align: center; }
+        .result { margin: 20px 0; padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Test Image Upload for Lentils & Millets CMS</h1>
+    
+    <div class="upload-area">
+        <input type="file" id="imageFile" accept="image/*" />
+        <br><br>
+        <input type="text" id="altText" placeholder="Alt text for accessibility" style="width: 300px;" />
+        <br><br>
+        <select id="category">
+            <option value="general">General</option>
+            <option value="lentils">Lentils</option>
+            <option value="millets">Millets</option>
+        </select>
+        <br><br>
+        <button onclick="uploadImage()">Upload Image</button>
+    </div>
+    
+    <div id="result" class="result" style="display: none;"></div>
+    
+    <h2>Existing Images</h2>
+    <div id="imageList"></div>
+
+    <script>
+        async function uploadImage() {
+            const fileInput = document.getElementById('imageFile');
+            const altText = document.getElementById('altText').value;
+            const category = document.getElementById('category').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('alt_text', altText);
+            formData.append('category', category);
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Uploading...';
+            
+            try {
+                const response = await fetch('/api/cms/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h3>Upload Successful!</h3>
+                        <p><strong>ID:</strong> ${data.data.id}</p>
+                        <p><strong>Filename:</strong> ${data.data.filename}</p>
+                        <p><strong>Original Name:</strong> ${data.data.original_name}</p>
+                        <p><strong>Size:</strong> ${Math.round(data.data.file_size / 1024)}KB</p>
+                        <p><strong>Dimensions:</strong> ${data.data.width}x${data.data.height}</p>
+                        <p><strong>Category:</strong> ${data.data.category}</p>
+                        <p><strong>Public URL:</strong> <a href="${data.data.public_url}" target="_blank">${data.data.public_url}</a></p>
+                        <img src="${data.data.variants.urls.thumbnail || data.data.public_url}" alt="${data.data.alt_text}" style="max-width: 200px; margin-top: 10px;" />
+                    `;
+                    loadImages(); // Refresh the image list
+                } else {
+                    resultDiv.innerHTML = `<h3 style="color: red;">Upload Failed</h3><p>${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<h3 style="color: red;">Upload Error</h3><p>${error.message}</p>`;
+            }
+        }
+        
+        async function loadImages() {
+            try {
+                const response = await fetch('/api/cms/images');
+                const data = await response.json();
+                
+                const imageListDiv = document.getElementById('imageList');
+                
+                if (data.success && data.images.length > 0) {
+                    imageListDiv.innerHTML = data.images.map(img => `
+                        <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; display: flex; align-items: center;">
+                            <img src="${img.variants.urls.thumbnail || img.public_url}" alt="${img.alt_text}" style="width: 100px; height: 100px; object-fit: cover; margin-right: 15px;" />
+                            <div>
+                                <h4>${img.original_name}</h4>
+                                <p><strong>Category:</strong> ${img.category}</p>
+                                <p><strong>Size:</strong> ${Math.round(img.file_size / 1024)}KB</p>
+                                <p><strong>Dimensions:</strong> ${img.width}x${img.height}</p>
+                                <p><strong>Alt Text:</strong> ${img.alt_text || 'None'}</p>
+                                <a href="${img.public_url}" target="_blank">View Full Size</a>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    imageListDiv.innerHTML = '<p>No images uploaded yet.</p>';
+                }
+            } catch (error) {
+                document.getElementById('imageList').innerHTML = `<p style="color: red;">Error loading images: ${error.message}</p>`;
+            }
+        }
+        
+        // Load images on page load
+        loadImages();
+    </script>
+</body>
+</html>

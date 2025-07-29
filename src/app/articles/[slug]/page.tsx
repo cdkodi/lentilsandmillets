@@ -7,21 +7,26 @@ import { useParams, useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 
 interface Article {
-  id: string
+  id: number
   title: string
   slug: string
   excerpt: string
   content: string
-  productLine: string
+  category: string
   author: string
-  publishedAt: string
+  published_at: string
   status: string
-  readingTime?: number
-  seo?: {
-    metaTitle?: string
-    metaDescription?: string
-    keywords?: string
+  hero_image_url?: string
+  hero_image_id?: number
+  factoid_data?: {
+    icon: string
+    primary_stat: { value: string; label: string }
+    secondary_stat: { value: string; label: string }
+    highlights: string[]
   }
+  meta_title?: string
+  meta_description?: string
+  tags?: string[]
 }
 
 export default function ArticlePage() {
@@ -36,14 +41,14 @@ export default function ArticlePage() {
     const fetchArticle = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/articles')
+        const res = await fetch('/api/cms/articles?status=published&limit=100')
         
         if (!res.ok) {
           throw new Error('Failed to fetch articles')
         }
         
         const data = await res.json()
-        const articles = data.docs || data || []
+        const articles = data.data?.articles || []
         
         // Find the article and ensure it's published
         const foundArticle = articles.find((a: Article) => a.slug === slug && a.status === 'published')
@@ -87,9 +92,9 @@ export default function ArticlePage() {
 
   const getCurrentSection = () => {
     if (!article) return 'home'
-    // Map article productLine to correct navigation section
-    if (article.productLine === 'lentils') return 'lentils'
-    if (article.productLine === 'millets') return 'millets'
+    // Map article category to correct navigation section
+    if (article.category === 'lentils') return 'lentils'
+    if (article.category === 'millets') return 'millets'
     return 'home'
   }
 
@@ -152,16 +157,16 @@ export default function ArticlePage() {
               Back to Home
             </Link>
           
-          {/* Product Line Badge */}
+          {/* Category Badge */}
           <div className="mb-4">
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-              article.productLine === 'lentils' 
+              article.category === 'lentils' 
                 ? 'bg-orange-100 text-orange-800'
-                : article.productLine === 'millets'
+                : article.category === 'millets'
                 ? 'bg-amber-100 text-amber-800'  
                 : 'bg-gray-100 text-gray-800'
             }`}>
-              {article.productLine || 'General'}
+              {article.category || 'General'}
             </span>
           </div>
 
@@ -174,19 +179,15 @@ export default function ArticlePage() {
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <span>By {article.author}</span>
             <span>•</span>
-            <time dateTime={article.publishedAt}>
-              {new Date(article.publishedAt).toLocaleDateString('en-US', {
+            <time dateTime={article.published_at}>
+              {new Date(article.published_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
               })}
             </time>
-            {article.readingTime && (
-              <>
-                <span>•</span>
-                <span>{article.readingTime} min read</span>
-              </>
-            )}
+            <span>•</span>
+            <span>5 min read</span>
           </div>
           </div>
         </header>
@@ -214,7 +215,7 @@ export default function ArticlePage() {
         {/* Call to Action */}
         <div className="mt-12 p-6 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Want to learn more about {article.productLine === 'general' ? 'lentils and millets' : article.productLine}?
+            Want to learn more about {article.category === 'general' ? 'lentils and millets' : article.category}?
           </h3>
           <p className="text-gray-600 mb-4">
             Explore our other articles and discover the nutritional benefits of these amazing foods.

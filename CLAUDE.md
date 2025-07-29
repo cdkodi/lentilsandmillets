@@ -12,7 +12,7 @@
 
 ### Current Stack
 - **Frontend**: React + TypeScript (existing components in `/Front-End/`)
-- **Backend**: Payload CMS 3.0 + Next.js 14
+- **Backend**: Custom CMS + Next.js 15 API Routes
 - **Database**: Neon PostgreSQL
 - **Hosting**: Vercel Pro
 - **Styling**: Tailwind CSS + shadcn/ui components
@@ -57,7 +57,7 @@
 
 ## Current Development Phase
 **Phase 1: Foundation & Setup** (Weeks 1-2)
-- Setting up Payload CMS + Next.js integration
+- Setting up custom CMS with Next.js API routes
 - Implementing state management
 - Establishing CI/CD pipeline
 
@@ -122,7 +122,7 @@ npm run lint         # ESLint checking
 npm run typecheck    # TypeScript validation
 
 # Content Management
-npm run payload      # Access Payload admin panel
+npm run dev          # Access custom CMS at /cms
 npm run migrate      # Run database migrations
 npm run seed         # Seed initial data
 ```
@@ -158,6 +158,90 @@ npm run seed         # Seed initial data
 
 **Always update this file immediately after completing any development task.**
 
+## Troubleshooting Guide
+
+### GitHub Actions Deployment Issues
+
+**Problem**: GitHub Actions failing to deploy to Vercel with various errors (pnpm lockfile, ESLint, database connection, missing secrets).
+
+#### Common Deployment Failures & Solutions:
+
+**1. pnpm Lockfile Errors**
+```
+ERR_PNPM_NO_LOCKFILE Cannot install with 'frozen-lockfile' because pnpm-lock.yaml is absent
+```
+- **Solution**: Change `--frozen-lockfile` to `--no-frozen-lockfile` in GitHub Actions workflows
+- **Files**: `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`
+
+**2. ESLint Configuration Missing**
+```
+Error: No ESLint configuration found
+```
+- **Solution**: Create `.eslintrc.json` with Next.js config:
+```json
+{
+  "extends": ["next/core-web-vitals"]
+}
+```
+- Fix React unescaped entities (use `&apos;` instead of `'`, `&quot;` instead of `"`)
+
+**3. Database Connection During Build**
+```
+Error: No database configuration found. Please set PG* environment variables or DATABASE_URL.
+```
+- **Root Cause**: Next.js tries to prerender API routes during build in CI environment
+- **Solution**: Add CI environment detection in database configuration:
+```typescript
+const databaseConfig = () => {
+  // Skip database connection during GitHub Actions build
+  if (process.env.GITHUB_ACTIONS || process.env.CI) {
+    return {
+      connectionString: 'postgresql://user:password@localhost:5432/database',
+      ssl: false
+    }
+  }
+  // ... rest of database config
+}
+```
+- **Alternative**: Add `export const dynamic = 'force-dynamic'` to API routes
+
+**4. Missing Vercel Secrets**
+```
+Error: Input required and not supplied: vercel-token
+```
+- **Required GitHub Secrets**:
+  - `VERCEL_TOKEN`: Get from https://vercel.com/account/tokens
+  - `PROJECT_ID`: Get from Vercel project settings (starts with `prj_`)
+  - `ORG_ID`: Get from Vercel team settings (starts with `team_`)
+  - `VERCEL_ORG_ID`: Same as ORG_ID (backup)
+
+**5. Duplicate Vercel Projects**
+- **Problem**: CLI creates new projects instead of linking to existing ones
+- **Solution**: 
+  1. Delete duplicate projects: `npx vercel remove project-name --yes`
+  2. Use correct project name that matches Vercel dashboard
+  3. Verify with `npx vercel project ls`
+
+#### Deployment Workflow Checklist:
+- [ ] `.eslintrc.json` exists with Next.js config
+- [ ] API routes have `export const dynamic = 'force-dynamic'`
+- [✅] CI environment detection in database configuration
+- [ ] GitHub secrets configured: VERCEL_TOKEN, PROJECT_ID, ORG_ID, VERCEL_ORG_ID
+- [ ] Workflows use `pnpm install --no-frozen-lockfile`
+- [ ] Build passes locally with `GITHUB_ACTIONS=true pnpm run build`
+
+#### Testing Deployment:
+```bash
+# Test build locally with CI environment
+GITHUB_ACTIONS=true pnpm run build
+
+# Check ESLint configuration
+pnpm run lint
+
+# Verify Vercel project connection
+npx vercel project ls
+```
+
 ## Context for AI Assistance
 When working on this project:
 1. **Always consider dual product line strategy** - every feature should work for both lentils and millets
@@ -167,6 +251,7 @@ When working on this project:
 5. **Maintain brand consistency** - use established color schemes and typography
 6. **Think long-term** - architecture should scale to e-commerce and mobile phases
 7. **Update task completion** - Mark tasks as completed in Development-Tasks-Roadmap.md immediately
+8. **Deployment issues** - Reference troubleshooting guide above for GitHub Actions/Vercel problems
 
 ## Quick Reference
 - **Primary Colors**: Lentils (#c7511f), Millets (#f39c12)

@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, X, TrendingUp, Book, Utensils, Leaf } from 'lucide-react';
 
