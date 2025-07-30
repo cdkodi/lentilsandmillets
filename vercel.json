@@ -2,7 +2,6 @@
   "buildCommand": "pnpm build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "rootDirectory": "frontend",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet . ':!cms' ':!ai-service'",
   "framework": "nextjs",
   "functions": {
