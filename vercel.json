@@ -1,36 +1,17 @@
 {
   "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
+  "outputDirectory": ".next",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "rootDirectory": "frontend",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet . ':!cms' ':!ai-service'",
   "framework": "nextjs",
   "functions": {
-    "src/app/api/[...slug]/route.ts": {
+    "src/app/api/**/*.ts": {
+      "runtime": "nodejs20.x",
       "maxDuration": 30
     }
   },
   "env": {
-    "PAYLOAD_CONFIG_PATH": "src/payload.config.ts",
     "NODE_ENV": "production"
-  },
-  "headers": [
-    {
-      "source": "/admin/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/admin",
-      "destination": "/admin"
-    },
-    {
-      "source": "/admin/(.*)",
-      "destination": "/admin/$1"
-    }
-  ]
+  }
 }

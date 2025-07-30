@@ -1,16 +1,52 @@
-# Lentils & Millets 🌾
+# Lentils & Millets - Comprehensive Platform
 
-**Premium organic lentils and ancient millets for modern healthy living**
+A comprehensive web platform for lentils and millets education, recipes, and e-commerce built with a modern microservices architecture.
 
 [![CI/CD Pipeline](https://github.com/cdkodi/lentilsandmillets/actions/workflows/ci.yml/badge.svg)](https://github.com/cdkodi/lentilsandmillets/actions/workflows/ci.yml)
 [![Deploy to Production](https://github.com/cdkodi/lentilsandmillets/actions/workflows/deploy.yml/badge.svg)](https://github.com/cdkodi/lentilsandmillets/actions/workflows/deploy.yml)
 
-## 🎯 Project Overview
+## Project Structure
 
-A comprehensive web platform dedicated to lentils and millets education, recipes, and e-commerce. Built with a dual product line strategy:
+This project is organized into three main components:
 
-- **Lentils**: Practical, protein-focused, family-oriented content
-- **Millets**: Premium ancient superfood, health-conscious positioning
+```
+lentils-and-millets/
+├── frontend/           # Next.js web application (deployed to Vercel)
+├── cms/               # Content Management System (local development)
+├── ai-service/        # AI-powered article generation (local development)
+└── [project files]   # Shared configuration and documentation
+```
+
+## Components Overview
+
+### 🌐 Frontend (`/frontend`)
+- **Purpose**: Public-facing website for lentilsandmillets.com
+- **Technology**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Deployment**: Vercel Pro with custom domain
+- **Features**: 
+  - Dual-brand theming (lentils vs millets)
+  - SEO-optimized content pages
+  - Mobile-first responsive design
+  - Performance-optimized (<2s load times)
+
+### 🛠️ CMS (`/cms`)
+- **Purpose**: Content management and admin interface
+- **Technology**: Next.js API routes, PostgreSQL, React components
+- **Deployment**: Local development only
+- **Features**:
+  - Article and recipe management
+  - Card-based layout system (H0-H19, L1-L8, M1-M8)
+  - Image library and upload management
+  - Database administration tools
+
+### 🤖 AI Service (`/ai-service`)
+- **Purpose**: AI-powered content generation
+- **Technology**: FastAPI, OpenAI GPT-4, Anthropic Claude, Google Gemini
+- **Deployment**: Local development only
+- **Features**:
+  - 5-step content pipeline (Generation → Fact-checking → Summarization → CMS Formatting → Quality Assessment)
+  - Multi-model AI integration with cost tracking
+  - Automated article creation and optimization
 
 ## 🚀 Tech Stack
 
