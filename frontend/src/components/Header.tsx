@@ -32,18 +32,60 @@ export default function Header({ currentSection = 'home', onNavigate, onSearch }
     console.log('Header search:', query);
     onSearch?.(query);
     // Navigate to search results page
-    onNavigate?.('recipes'); // For now, redirect to recipes page
+    if (onNavigate) {
+      onNavigate('recipes'); // Use callback if provided
+    } else {
+      window.location.href = '/recipes'; // Fallback to direct navigation
+    }
   };
 
   const handleSuggestionClick = (suggestion: any) => {
     console.log('Suggestion clicked:', suggestion);
     // Navigate based on suggestion type
     if (suggestion.type === 'recipe') {
-      onNavigate?.('recipes');
+      if (onNavigate) {
+        onNavigate('recipes');
+      } else {
+        window.location.href = '/recipes';
+      }
     } else if (suggestion.type === 'article') {
-      onNavigate?.(suggestion.category || 'home');
+      const category = suggestion.category || 'home';
+      if (onNavigate) {
+        onNavigate(category);
+      } else {
+        window.location.href = category === 'home' ? '/' : `/${category}`;
+      }
     } else {
-      onNavigate?.(suggestion.category || 'home');
+      const category = suggestion.category || 'home';
+      if (onNavigate) {
+        onNavigate(category);
+      } else {
+        window.location.href = category === 'home' ? '/' : `/${category}`;
+      }
+    }
+  };
+
+  const handleNavigation = (itemId: string) => {
+    if (onNavigate) {
+      onNavigate(itemId);
+    } else {
+      // Direct navigation fallback
+      switch (itemId) {
+        case 'home':
+          window.location.href = '/';
+          break;
+        case 'lentils':
+          window.location.href = '/lentils';
+          break;
+        case 'millets':
+          window.location.href = '/millets';
+          break;
+        case 'recipes':
+          window.location.href = '/recipes';
+          break;
+        default:
+          window.location.href = '/';
+      }
     }
   };
 
@@ -52,7 +94,7 @@ export default function Header({ currentSection = 'home', onNavigate, onSearch }
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center cursor-pointer" onClick={() => onNavigate?.('home')}>
+          <div className="flex items-center cursor-pointer" onClick={() => handleNavigation('home')}>
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></div>
               <span className="hidden sm:block text-xl">
@@ -80,7 +122,7 @@ export default function Header({ currentSection = 'home', onNavigate, onSearch }
             {navigation.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onNavigate?.(item.id)}
+                onClick={() => handleNavigation(item.id)}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   getActiveSection() === item.id
                     ? 'text-orange-600 bg-orange-50'
@@ -123,7 +165,7 @@ export default function Header({ currentSection = 'home', onNavigate, onSearch }
                 <button
                   key={item.id}
                   onClick={() => {
-                    onNavigate?.(item.id);
+                    handleNavigation(item.id);
                     setIsMenuOpen(false);
                   }}
                   className={`block w-full text-left px-3 py-2 rounded-md transition-colors ${

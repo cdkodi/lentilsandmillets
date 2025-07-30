@@ -1,0 +1,292 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - text: Lentils & Millets
+  - img
+  - textbox "Search recipes, varieties, nutrition..."
+  - navigation:
+    - button "Home"
+    - button "Lentils"
+    - button "Millets"
+    - button "Recipes"
+- main:
+  - img
+  - text: Premium • Organic • Sustainably Sourced
+  - heading "The Science of Lentils & Millets" [level=1]
+  - paragraph: Where ancient wisdom meets modern nutrition science. Discover meticulously curated collections of premium lentils and heritage millets, each variety selected for its unique flavor profile and exceptional nutritional density.
+  - paragraph: Find recipes, nutrition facts, or varieties
+  - img
+  - textbox "Search for recipes, lentil types, nutrition info..."
+  - paragraph: "Popular searches:"
+  - button "Red lentil curry"
+  - button "Pearl millet nutrition"
+  - button "High protein recipes"
+  - button "Gluten-free options"
+  - button "Quick cooking lentils"
+  - text: 25+ Premium Varieties 100% Organic Certified
+  - button "Explore Lentils":
+    - text: Explore Lentils
+    - img
+  - button "Discover Millets":
+    - text: Discover Millets
+    - img
+  - img "Premium red lentils in wooden bowl"
+  - heading "Premium Lentils" [level=3]
+  - paragraph: Protein • Fiber • Iron
+  - img "Mixed lentil varieties"
+  - img "Golden millet grains"
+  - img "Pearl millet in rustic bowl"
+  - heading "Ancient Millets" [level=3]
+  - paragraph: Gluten-Free • Sustainable • Nutritious
+  - text: Farm-to-Table Traceability Lab-Tested Purity Sustainable Sourcing
+  - button "Explore":
+    - text: Explore
+    - img
+  - text: NUTRITION SCIENCE
+  - heading "Lentil Nutritional Facts" [level=2]
+  - paragraph: Discover the scientific evidence behind these nutritional powerhouses and their impact on modern health.
+  - img
+  - text: Lentils
+  - 'img "Red Lentils: Quick-Cooking Protein Powerhouse"'
+  - 'heading "Red Lentils: Quick-Cooking Protein Powerhouse" [level=3]'
+  - text: 25g Protein per 100g 15min Cook Time Complete amino acid profile High in folate & iron Naturally gluten-free
+  - img
+  - img
+  - text: Lentils
+  - img "Error loading image"
+  - 'heading "Green Lentils: The Fiber Champion" [level=3]'
+  - text: 8g Fiber per serving 230 Calories per cup Supports digestive health Helps manage cholesterol Promotes satiety
+  - img
+  - img
+  - text: Lentils
+  - img "Error loading image"
+  - 'heading "Black Beluga: Antioxidant Superfood" [level=3]'
+  - text: 920 ORAC Score 6.6mg Iron per 100g Rich in anthocyanins Premium texture & flavor Excellent for salads
+  - img
+  - button "Explore All Lentil Varieties"
+  - heading "Premium Lentils Collection" [level=2]
+  - paragraph: From vibrant red lentils to earthy black beluga varieties, our collection offers exceptional quality and flavor for every culinary adventure.
+  - img
+  - textbox "Search lentil recipes, varieties, nutrition..."
+  - button "All Types":
+    - img
+    - text: All Types
+  - button "Quick Cooking"
+  - button "High Protein"
+  - button "Salad-Friendly"
+  - img "Red Lentils"
+  - heading "Red Lentils" [level=3]
+  - paragraph: Quick-cooking, perfect for soups and curries
+  - img
+  - text: 15 min
+  - img
+  - img "Error loading image"
+  - heading "Green Lentils" [level=3]
+  - paragraph: Hearty texture, ideal for salads and stews
+  - img
+  - text: 25 min
+  - img
+  - img "Error loading image"
+  - heading "Black Beluga" [level=3]
+  - paragraph: Caviar-like appearance, gourmet dishes
+  - img
+  - text: 20 min
+  - img
+  - heading "Featured Lentil Recipes" [level=3]
+  - paragraph: Discover delicious ways to incorporate lentils into your daily meals
+  - img "Spiced Red Lentil Curry"
+  - img
+  - text: "4.8"
+  - heading "Spiced Red Lentil Curry" [level=4]
+  - img
+  - text: 30 min
+  - img
+  - text: Serves 4
+  - img "Mediterranean Lentil Salad"
+  - img
+  - text: "4.9"
+  - heading "Mediterranean Lentil Salad" [level=4]
+  - img
+  - text: 20 min
+  - img
+  - text: Serves 6
+  - button "View All Lentil Recipes"
+  - text: NUTRITION SCIENCE
+  - heading "Millet Nutritional Facts" [level=2]
+  - paragraph: Discover the scientific evidence behind these nutritional powerhouses and their impact on modern health.
+  - img
+  - text: Millets
+  - img "Error loading image"
+  - 'heading "Pearl Millet: Climate-Resilient Champion" [level=3]'
+  - text: 200mm Min Rainfall 46°C Heat Tolerance Drought-resistant supercrop Grows in marginal lands Carbon-negative farming
+  - img
+  - img
+  - text: Millets
+  - img "Error loading image"
+  - 'heading "Finger Millet: Natural Calcium Source" [level=3]'
+  - text: 344mg Calcium per 100g 3.9mg Iron per 100g Superior to dairy for calcium Supports bone health Rich in amino acids
+  - img
+  - img
+  - text: Millets
+  - 'img "Foxtail Millet: Diabetic-Friendly Grain"'
+  - 'heading "Foxtail Millet: Diabetic-Friendly Grain" [level=3]'
+  - text: 50 Glycemic Index 12.3g Protein per 100g Low glycemic index Balances blood sugar High in B-vitamins
+  - img
+  - button "Explore All Millet Varieties"
+  - text: NUTRITION SCIENCE
+  - heading "Millet Nutritional Facts" [level=1]
+  - paragraph: Discover the scientific evidence behind these nutritional powerhouses and their impact on modern health.
+  - img
+  - text: MILLETS
+  - img "Pearl Millet"
+  - 'heading "Pearl Millet: Climate-Resilient Champion" [level=4]'
+  - text: 200mm Min Rainfall 46°C Heat Tolerance Drought-resistant supercrop Grows in marginal lands Carbon-negative farming
+  - img
+  - text: MILLETS
+  - img "Finger Millet"
+  - 'heading "Finger Millet: Natural Calcium Source" [level=4]'
+  - text: 344mg Calcium per 100g 3.9mg Iron per 100g Superior to dairy for calcium Supports bone health Rich in amino acids
+  - img
+  - text: MILLETS
+  - img "Foxtail Millet"
+  - 'heading "Foxtail Millet: Diabetic-Friendly Grain" [level=4]'
+  - text: 50 Glycemic Index 12.3g Protein per 100g Low glycemic index Balances blood sugar High in B-vitamins
+  - button "Explore All Millet Varieties"
+  - heading "Ancient Millets Collection" [level=2]
+  - paragraph: Rediscover the golden grains of our ancestors. These nutrient-dense superfoods are perfect for modern healthy living and sustainable nutrition.
+  - img
+  - textbox "Search millet recipes, varieties, benefits..."
+  - button "All Types":
+    - img
+    - text: All Types
+  - button "Gluten-Free"
+  - button "High Calcium"
+  - button "Diabetic-Friendly"
+  - img
+  - heading "Why Choose Millets?" [level=3]
+  - img
+  - heading "Gluten-Free" [level=4]
+  - paragraph: Perfect for celiac and gluten-sensitive individuals
+  - img
+  - heading "Nutrient Dense" [level=4]
+  - paragraph: Packed with protein, fiber, and essential minerals
+  - img
+  - heading "Sustainable" [level=4]
+  - paragraph: Climate-resilient crops with minimal water needs
+  - img "Error loading image"
+  - heading "Pearl Millet" [level=3]
+  - paragraph: High protein, gluten-free ancient grain
+  - text: Rich in iron & magnesium
+  - img
+  - img "Error loading image"
+  - heading "Finger Millet" [level=3]
+  - paragraph: Calcium powerhouse, perfect for health
+  - text: Excellent for bone health
+  - img
+  - img "Foxtail Millet"
+  - heading "Foxtail Millet" [level=3]
+  - paragraph: Low glycemic index, diabetic-friendly
+  - text: Controls blood sugar
+  - img
+  - heading "Featured Millet Recipes" [level=2]
+  - paragraph: Wholesome and delicious ways to enjoy these golden grains
+  - img "Error loading image"
+  - img
+  - text: "4.7"
+  - heading "Golden Millet Pilaf" [level=4]
+  - img
+  - text: 25 min
+  - img
+  - text: Serves 4
+  - img "Millet Breakfast Bowl"
+  - img
+  - text: "4.9"
+  - heading "Millet Breakfast Bowl" [level=4]
+  - img
+  - text: 15 min
+  - img
+  - text: Serves 2
+  - button "View All Millet Recipes"
+  - text: L&M
+  - heading "Lentils & Millets" [level=3]
+  - paragraph: Premium organic grains for modern healthy living. From quick family meals to gourmet superfood experiences.
+  - heading "Products" [level=4]
+  - list:
+    - listitem:
+      - link "Lentil Varieties":
+        - /url: /lentils
+    - listitem:
+      - link "Ancient Millets":
+        - /url: /millets
+    - listitem:
+      - link "Recipe Collection":
+        - /url: /recipes
+    - listitem:
+      - link "Nutrition Guide":
+        - /url: /nutrition
+  - heading "Resources" [level=4]
+  - list:
+    - listitem:
+      - link "Cooking Guides":
+        - /url: /cooking-guides
+    - listitem:
+      - link "Health Benefits":
+        - /url: /health-benefits
+    - listitem:
+      - link "Sustainability":
+        - /url: /sustainability
+    - listitem:
+      - link "Research & Studies":
+        - /url: /research
+  - heading "Company" [level=4]
+  - list:
+    - listitem:
+      - link "About Us":
+        - /url: /about
+    - listitem:
+      - link "Contact":
+        - /url: /contact
+    - listitem:
+      - link "Careers":
+        - /url: /careers
+    - listitem:
+      - link "Blog":
+        - /url: /blog
+  - text: © 2024 Lentils & Millets. All rights reserved.
+  - link "Privacy Policy":
+    - /url: /privacy
+  - link "Terms of Service":
+    - /url: /terms
+  - link "Cookie Policy":
+    - /url: /cookies
+  - text: Lentils & Millets
+  - paragraph: Premium organic lentils and ancient millets for modern healthy living. Sourced directly from sustainable farms, crafted for your kitchen.
+  - heading "Quick Links" [level=4]
+  - list:
+    - listitem:
+      - link "Lentils Collection":
+        - /url: /lentils
+    - listitem:
+      - link "Millets Collection":
+        - /url: /millets
+    - listitem:
+      - link "All Recipes":
+        - /url: /recipes
+  - heading "Learn More" [level=4]
+  - list:
+    - listitem:
+      - link "Nutrition Science":
+        - /url: "#"
+    - listitem:
+      - link "Sustainable Farming":
+        - /url: "#"
+    - listitem:
+      - link "Health Benefits":
+        - /url: "#"
+    - listitem:
+      - link "Research Articles":
+        - /url: "#"
+  - paragraph: © 2025 Lentils & Millets. All rights reserved. Crafted with care for healthy living.
+- alert
+```
