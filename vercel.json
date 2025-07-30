@@ -2,7 +2,6 @@
   "buildCommand": "pnpm build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet frontend/",
   "framework": "nextjs",
   "functions": {
     "src/app/api/**/*.ts": {
