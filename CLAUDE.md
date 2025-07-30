@@ -125,11 +125,16 @@ npm run typecheck    # TypeScript validation
 npm run dev          # Access custom CMS at /cms
 npm run migrate      # Run database migrations
 npm run seed         # Seed initial data
+
+# Deployment (see DEPLOYMENT.md for complete guide)
+git push origin main                    # Deploy to Vercel (auto-trigger)
+npx playwright test --config=playwright-production.config.ts  # Test production
 ```
 
 ## Important Files to Reference
 - `/Project Docs/Claude PRD.md` - Complete business requirements
 - `/Project Docs/Development-Tasks-Roadmap.md` - Technical roadmap
+- `/DEPLOYMENT.md` - **Complete deployment guide and architecture documentation**
 - `/Front-End/App.tsx` - Main application component
 - `/Front-End/styles/globals.css` - Brand styling and CSS variables
 
