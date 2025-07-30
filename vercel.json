@@ -1,8 +1,9 @@
 {
-  "buildCommand": "pnpm build",
-  "outputDirectory": ".next",
-  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "cd frontend && pnpm build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "cd frontend && pnpm install --no-frozen-lockfile",
   "framework": "nextjs",
+  "rootDirectory": "frontend",
   "functions": {
     "src/app/api/**/*.ts": {
       "runtime": "nodejs20.x",
@@ -11,5 +12,6 @@
   },
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD frontend/"
 }

@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Save, X, Plus, Trash2, Eye, BarChart3, Heart, Leaf, Globe, Image as ImageIcon } from 'lucide-react';
 import ImageManager from './ImageManager';
+import ImageInsertionModal from './ImageInsertionModal';
 
 interface FactoidData {
   primary_stat: {
@@ -92,6 +93,8 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showImageManager, setShowImageManager] = useState(false);
+  const [showImageInsertionModal, setShowImageInsertionModal] = useState(false);
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (articleId) {
@@ -278,6 +281,36 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
     }));
   };
 
+  // Handle image insertion into content
+  const handleImageInsertion = (imageTag: string) => {
+    const textarea = contentTextareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentContent = formData.content;
+      
+      // Insert image tag at cursor position or replace selection
+      const newContent = 
+        currentContent.substring(0, start) + 
+        '\n\n' + imageTag + '\n\n' + 
+        currentContent.substring(end);
+      
+      setFormData(prev => ({
+        ...prev,
+        content: newContent
+      }));
+      
+      // Focus textarea and position cursor after inserted tag
+      setTimeout(() => {
+        if (textarea) {
+          textarea.focus();
+          const newCursorPosition = start + imageTag.length + 4; // +4 for the newlines
+          textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+        }
+      }, 0);
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -450,10 +483,21 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Content *
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Content *
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowImageInsertionModal(true)}
+              className="flex items-center space-x-2 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <ImageIcon size={16} />
+              <span>Insert Image</span>
+            </button>
+          </div>
           <textarea
+            ref={contentTextareaRef}
             value={formData.content}
             onChange={(e) => handleInputChange('content', e.target.value)}
             rows={12}
@@ -462,6 +506,10 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
             }`}
             placeholder="Article content in markdown or plain text..."
           />
+          <div className="mt-2 text-xs text-gray-500">
+            <p>Use markdown syntax for formatting. Insert images with the button above.</p>
+            <p>Example: <code>{`{image:filename:card_medium:center|Optional caption}`}</code></p>
+          </div>
           {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
         </div>
 
@@ -851,6 +899,14 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
           onClose={() => setShowImageManager(false)}
           isModal={true}
           category={formData.category}
+        />
+      )}
+
+      {showImageInsertionModal && (
+        <ImageInsertionModal
+          isOpen={showImageInsertionModal}
+          onClose={() => setShowImageInsertionModal(false)}
+          onInsert={handleImageInsertion}
         />
       )}
     </div>

@@ -35,3 +35,53 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Article Image Styles */
+@layer components {
+  .article-content {
+    /* Ensure proper text flow around floated images */
+    overflow: hidden;
+  }
+  
+  .custom-article-image {
+    /* Base styles for all article images */
+    @apply transition-all duration-300 hover:shadow-lg;
+  }
+  
+  /* Float clearfix for better text flow */
+  .article-content::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+  /* Responsive adjustments for floated images */
+  @media (max-width: 768px) {
+    .float-left,
+    .float-right {
+      @apply float-none mx-auto mb-6;
+    }
+  }
+  
+  /* Image caption styles */
+  .article-content figcaption {
+    @apply text-sm text-gray-600 mt-2 text-center italic;
+  }
+  
+  /* Full-width image container */
+  .article-content .w-full {
+    @apply mx-auto;
+  }
+  
+  /* Responsive image containers */
+  .article-content img {
+    @apply max-w-full h-auto;
+  }
+  
+  /* Dark mode support for image captions */
+  @media (prefers-color-scheme: dark) {
+    .article-content figcaption {
+      @apply text-gray-400;
+    }
+  }
+}
