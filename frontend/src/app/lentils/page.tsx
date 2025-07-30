@@ -2,7 +2,23 @@ import { Metadata } from 'next';
 import { neon } from '@neondatabase/serverless';
 import LentilsPageClient from './LentilsPageClient';
 
-const sql = neon(process.env.DATABASE_URL!);
+// Construct DATABASE_URL from individual environment variables if needed
+const getDatabaseUrl = () => {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+  
+  // Construct from individual PG variables
+  const { PGUSER, PGPASSWORD, PGHOST, PGPORT, PGDATABASE, PGSSLMODE } = process.env;
+  if (PGUSER && PGPASSWORD && PGHOST && PGDATABASE) {
+    return `postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT || 5432}/${PGDATABASE}?sslmode=${PGSSLMODE || 'require'}`;
+  }
+  
+  // Fallback for build-time when no real DB needed
+  return 'postgresql://user:pass@localhost:5432/db';
+};
+
+const sql = neon(getDatabaseUrl());
 
 // SEO Metadata
 export const metadata: Metadata = {
