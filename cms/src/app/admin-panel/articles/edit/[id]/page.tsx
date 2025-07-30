@@ -40,18 +40,19 @@ export default function EditArticlePage() {
       setLoadingData(true)
       const response = await fetch(`/api/articles/${articleId}`)
       if (response.ok) {
-        const article = await response.json()
+        const result = await response.json()
+        const article = result.data // Extract from the data property
         setFormData({
           title: article.title || '',
           slug: article.slug || '',
-          productLine: article.productLine || 'general',
+          productLine: article.category || 'general', // Map category to productLine
           excerpt: article.excerpt || '',
           content: article.content || '',
           author: article.author || 'Lentils & Millets Team',
-          readingTime: article.readingTime || 5,
-          metaTitle: article.seo?.metaTitle || '',
-          metaDescription: article.seo?.metaDescription || '',
-          keywords: article.seo?.keywords || '',
+          readingTime: 5, // Default reading time as it's not in our schema
+          metaTitle: article.meta_title || '',
+          metaDescription: article.meta_description || '',
+          keywords: '', // Keywords not stored as comma-separated in our schema
           status: article.status || 'draft'
         })
       } else {

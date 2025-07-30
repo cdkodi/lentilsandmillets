@@ -5,16 +5,18 @@
 
 ## Table of Contents
 1. [System Overview](#system-overview)
-2. [Card-Based Content Architecture](#card-based-content-architecture)
-3. [Content Types](#content-types)
-4. [Image Management System](#image-management-system)
-5. [Card Position Rules](#card-position-rules)
-6. [Article Management](#article-management)
-7. [Recipe Management](#recipe-management)
-8. [Admin Interface Guide](#admin-interface-guide)
-9. [Content Publishing Workflow](#content-publishing-workflow)
-10. [Best Practices](#best-practices)
-11. [Troubleshooting](#troubleshooting)
+2. [Development Environment Setup](#development-environment-setup)
+3. [Card-Based Content Architecture](#card-based-content-architecture)
+4. [Content Types](#content-types)
+5. [Image Management System](#image-management-system)
+6. [Card Position Rules](#card-position-rules)
+7. [Article Management](#article-management)
+8. [Recipe Management](#recipe-management)
+9. [Admin Interface Guide](#admin-interface-guide)
+10. [Content Publishing Workflow](#content-publishing-workflow)
+11. [AI-Powered Content Generation](#ai-powered-content-generation)
+12. [Best Practices](#best-practices)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -30,6 +32,155 @@ The Lentils & Millets CMS uses a **card-based content management system** where 
 - **Factoid Card Display** for scientific/nutritional content
 - **Professional Image Management** with automatic optimization and CDN delivery
 - **Cloudflare R2 Storage** for cost-effective, high-performance image hosting
+
+---
+
+## Development Environment Setup
+
+### Service Ports & URLs
+
+The Lentils & Millets platform consists of three separate services running on different ports:
+
+#### 🌐 **Frontend (Public Website)**
+- **Port**: `3000` (default Next.js port)
+- **URL**: `http://localhost:3000`
+- **Purpose**: Public-facing website with card-based content display
+- **Start Command**: 
+  ```bash
+  cd /path/to/lentils-and-millets/frontend
+  npm run dev
+  ```
+
+#### 🔧 **CMS (Content Management System)**
+- **Port**: `3001` (configured to avoid conflict)
+- **URL**: `http://localhost:3001`
+- **Purpose**: Admin interface for managing articles, recipes, and images
+- **Start Command**:
+  ```bash
+  cd /path/to/lentils-and-millets/cms
+  npm run dev
+  ```
+- **Authentication**: Admin login required
+- **Features**: Card assignment, image management, content creation
+
+#### 🤖 **AI Service (Article Generation)**
+- **Port**: `8000` (FastAPI default)
+- **URL**: `http://localhost:8000`
+- **Purpose**: AI-powered article generation with multi-model support
+- **API Documentation**: `http://localhost:8000/docs` (Swagger UI)
+- **Start Command**:
+  ```bash
+  cd /path/to/lentils-and-millets/ai-service
+  python main.py
+  # or
+  uvicorn main:app --reload --host 0.0.0.0 --port 8000
+  ```
+
+### Development Workflow
+
+#### 1. **Starting All Services**
+```bash
+# Terminal 1 - Frontend (Public Website)
+cd /path/to/lentils-and-millets/frontend
+npm run dev
+# ✅ Frontend running on http://localhost:3000
+
+# Terminal 2 - CMS (Admin Interface)  
+cd /path/to/lentils-and-millets/cms
+npm run dev
+# ✅ CMS running on http://localhost:3001
+
+# Terminal 3 - AI Service (Optional - only for AI content generation)
+cd /path/to/lentils-and-millets/ai-service
+python main.py
+# ✅ AI Service running on http://localhost:8000
+```
+
+#### 2. **Port Configuration**
+
+**Frontend (`frontend/package.json`)**:
+```json
+{
+  "scripts": {
+    "dev": "next dev",          // Uses default port 3000
+    "build": "next build",
+    "start": "next start"
+  }
+}
+```
+
+**CMS (`cms/package.json`)**:
+```json
+{
+  "scripts": {
+    "dev": "next dev -p 3001",  // Explicitly set to port 3001
+    "build": "next build",
+    "start": "next start -p 3001"
+  }
+}
+```
+
+**AI Service (`ai-service/.env`)**:
+```bash
+FASTAPI_HOST=localhost
+FASTAPI_PORT=8000
+FASTAPI_DEBUG=true
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+```
+
+#### 3. **Cross-Service Communication**
+
+- **CMS → Database**: Direct PostgreSQL connection for content management
+- **Frontend → Database**: Direct PostgreSQL connection for content display  
+- **AI Service → Database**: PostgreSQL connection for storing generated content
+- **AI Service → CMS**: Automatic saving of AI-generated articles to CMS
+- **CORS Configuration**: AI service allows requests from both frontend and CMS
+
+### Service Dependencies
+
+#### **Required for Basic Operation**
+- **Frontend**: Database access (Neon PostgreSQL)
+- **CMS**: Database access + Image storage (Cloudflare R2)
+
+#### **Optional for Enhanced Features**  
+- **AI Service**: OpenAI API + Anthropic API + Google Gemini API for content generation
+
+#### **Database Schema Shared**
+All services use the same PostgreSQL database with these key tables:
+- `cms_articles` - Articles created via CMS or AI service
+- `cms_recipes` - Recipes created via CMS or AI service  
+- `cms_images` - Professional image management system
+- `ai_generation_sessions` - AI generation tracking and metadata
+
+### Quick Development Start
+
+#### **Minimal Setup (CMS Only)**
+```bash
+# Start just the CMS for content management
+cd /path/to/lentils-and-millets/cms
+npm run dev
+# Visit http://localhost:3001
+```
+
+#### **Full Content Workflow**
+```bash
+# 1. Start CMS for content creation
+cd /path/to/lentils-and-millets/cms  
+npm run dev &
+
+# 2. Start Frontend to see live changes
+cd /path/to/lentils-and-millets/frontend
+npm run dev &
+
+# 3. (Optional) Start AI Service for AI content generation
+cd /path/to/lentils-and-millets/ai-service
+python main.py &
+
+# All services now running:
+# 🌐 Frontend: http://localhost:3000
+# 🔧 CMS: http://localhost:3001  
+# 🤖 AI Service: http://localhost:8000
+```
 
 ---
 
@@ -681,6 +832,203 @@ Published Date: [Date Picker]
 
 Author: [Dropdown] Content team members
 ```
+
+---
+
+## AI-Powered Content Generation
+
+The Lentils & Millets platform includes a sophisticated AI service that can automatically generate high-quality articles with multiple AI models working in harmony.
+
+### AI Service Overview
+
+#### **Multi-Model Architecture**
+- **🧠 OpenAI GPT-4**: Primary content generation and fallback processing  
+- **🤖 Anthropic Claude**: Fact-checking and content validation
+- **✨ Google Gemini**: Content summarization and key points extraction  
+- **📊 Quality Assessment**: Automated scoring and metrics
+
+#### **5-Step Generation Pipeline**
+1. **Content Generation**: Create comprehensive article content
+2. **Fact-Checking**: Verify claims and add authoritative citations  
+3. **Summarization**: Generate summary and key takeaway points
+4. **CMS Formatting**: Structure content for database storage
+5. **Quality Assessment**: Score content and provide improvement suggestions
+
+### Using AI Content Generation
+
+#### **Starting the AI Service**
+```bash
+cd /path/to/lentils-and-millets/ai-service
+python main.py
+# ✅ AI Service running on http://localhost:8000
+# 📋 API Documentation: http://localhost:8000/docs
+```
+
+#### **Making AI Generation Requests**
+```bash
+# Test the service health
+curl http://localhost:8000/health
+
+# Generate article via API
+curl -X POST "http://localhost:8000/api/ai/generate-article" \
+  -H "Authorization: Bearer dev-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "topic": "Red Lentils: Quick Cooking Methods",
+    "options": {
+      "target_length": 800,
+      "category": "lentils",
+      "include_factoids": true,
+      "include_seo_meta": true
+    }
+  }'
+```
+
+#### **AI Service Authentication**
+- **Development Mode**: Use `dev-token` as Bearer token
+- **Production**: JWT-based authentication with CMS user system
+- **Admin Access**: Only admin users can generate content
+
+### Generated Content Features
+
+#### **Article Structure**
+- **SEO-Optimized Title**: Automatically generated with target keywords
+- **URL Slug**: Clean, SEO-friendly slug based on title
+- **Rich Content**: Comprehensive article with proper markdown formatting
+- **Factual Citations**: Verified claims with authoritative source references
+- **Meta Data**: Title and description optimized for search engines
+- **Key Points**: 10 actionable takeaways for readers
+
+#### **Automatic CMS Integration**
+- **Direct Saving**: Generated articles automatically saved to `cms_articles` table
+- **Card Position Assignment**: Smart assignment based on content category
+  - Lentils articles → L1, L2, L3... positions
+  - Millets articles → M1, M2, M3... positions
+- **Draft Status**: Articles saved as drafts for review before publishing
+- **Session Tracking**: Complete generation metadata stored for audit
+
+### AI Generation Results
+
+#### **Example Generated Article**
+```
+Title: "Unleashing the Potential of Red Lentils: Quick Cooking Methods and Health Benefits"
+Slug: unleashing-the-potential-of-red-lentils-quick-cooking-methods-and-health-benefits
+Content Length: 3,679 characters
+Quality Score: 84/100
+Generation Cost: $0.11
+Processing Time: 66 seconds
+Card Position: L2 (auto-assigned)
+```
+
+#### **Quality Metrics**
+- **Overall Score**: 75-95/100 typical range
+- **Structure Score**: Content organization and flow
+- **Readability Score**: Ease of reading and comprehension  
+- **Completeness Score**: Coverage of topic requirements
+- **Fact-Check Notes**: Verification status of claims made
+
+### AI Model Configuration
+
+#### **API Keys Required**
+```bash
+# AI Service Environment Variables
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key  
+GOOGLE_API_KEY=your-google-gemini-api-key
+
+# Model Configuration
+AI_MODEL_PRIMARY=gpt-4
+AI_MODEL_FALLBACK=gpt-3.5-turbo
+AI_MODEL_SUMMARIZATION=gemini-1.5-flash
+```
+
+#### **Cost Management**
+- **Per-Request Limits**: Maximum 4,000 tokens per generation
+- **Daily Cost Limits**: $50 daily spending cap  
+- **Rate Limiting**: 10 requests per minute maximum
+- **Cost Tracking**: Real-time cost calculation and reporting
+
+### Content Generation Workflow
+
+#### **1. Manual Generation (API)**
+```bash
+# Generate article on specific topic
+POST /api/ai/generate-article
+{
+  "topic": "Green Lentils: Versatile Protein Source",
+  "options": {
+    "target_length": 1200,
+    "category": "lentils", 
+    "include_factoids": true
+  }
+}
+```
+
+#### **2. Automatic CMS Integration**
+- Article generated with all 5 pipeline steps
+- Content automatically saved to CMS database
+- Card position assigned based on category
+- Session metadata tracked for analysis
+- Ready for review and publishing
+
+#### **3. Review and Publishing**
+- Generated articles appear in CMS as drafts
+- Review content quality and accuracy
+- Edit or enhance content as needed
+- Publish to make live on website
+
+### AI Service Monitoring
+
+#### **Health Checks**
+```bash
+# Service status
+GET http://localhost:8000/health
+# Returns: {"status": "healthy", "service": "ai-article-generation", "version": "1.0.0"}
+
+# Generation session details  
+GET http://localhost:8000/api/ai/sessions/{session_id}
+# Returns: Complete generation metadata and results
+```
+
+#### **Performance Analytics**
+- **Generation Success Rate**: Percentage of successful completions
+- **Average Quality Scores**: Content quality trends over time
+- **Model Performance**: Comparative analysis of AI models
+- **Cost Analytics**: Spending patterns and optimization opportunities
+
+### Best Practices for AI Content
+
+#### **Topic Selection**
+- **Specific Topics**: "Red Lentil Curry Recipe" vs "Lentils" 
+- **Include Keywords**: Natural inclusion of target search terms
+- **Category Alignment**: Ensure topic matches lentils or millets focus
+- **Length Guidance**: 800-1200 words optimal for SEO and engagement
+
+#### **Generated Content Review**
+- **Fact Verification**: Double-check nutritional claims and health benefits
+- **Source Validation**: Verify citations and references provided
+- **Brand Voice**: Ensure tone matches Lentils & Millets brand voice
+- **SEO Optimization**: Review meta title and description for improvements
+
+#### **Integration with Manual Content**
+- **AI as Starting Point**: Use generated content as foundation for editing
+- **Human Enhancement**: Add personal insights, local context, cultural notes
+- **Image Pairing**: Select appropriate hero images for AI-generated articles
+- **Cross-Linking**: Connect AI articles with existing manual content
+
+### Troubleshooting AI Service
+
+#### **Common Issues**
+- **API Key Errors**: Verify all three API keys are correctly configured
+- **Quota Exceeded**: Gemini free tier limited to 50 requests/day
+- **Generation Failures**: Check model availability and API status
+- **Slow Processing**: Generation takes 60-90 seconds for quality content
+
+#### **Error Recovery**
+- **Automatic Fallbacks**: Gemini quota exceeded → GPT-4 summarization
+- **Retry Logic**: Failed requests automatically retry with exponential backoff
+- **Error Tracking**: All failures logged with detailed error messages
+- **Session Recovery**: Partial generations saved for troubleshooting
 
 ---
 

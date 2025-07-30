@@ -5,12 +5,16 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PlusCircle, Users, FileText, ChefHat, LogOut } from 'lucide-react'
+import { PlusCircle, Users, FileText, ChefHat, LogOut, LayoutGrid, Image, Sparkles } from 'lucide-react'
+import CardDashboard from '@/components/admin/CardDashboard'
+import ImageLibrary from '@/components/admin/ImageLibrary'
+import AIGenerationModal from '@/components/admin/AIGenerationModal'
 
 export default function AdminDashboard() {
   const [recipes, setRecipes] = useState([])
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showAIModal, setShowAIModal] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -66,6 +70,15 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('admin_session')
     router.push('/admin-panel/login')
+  }
+
+  const handleAIGenerate = (articleData: any) => {
+    console.log('Generated article data:', articleData)
+    
+    // Navigate to article creation with pre-filled data
+    // We'll store the data in sessionStorage for now
+    sessionStorage.setItem('ai_generated_article', JSON.stringify(articleData))
+    router.push('/admin-panel/articles/new?from=ai')
   }
 
   if (loading) {
@@ -139,13 +152,14 @@ export default function AdminDashboard() {
         </div>
 
         {/* Content Management */}
-        <Tabs defaultValue="articles" className="space-y-4">
+        <Tabs defaultValue="grid-layout" className="space-y-4">
           <TabsList>
             <TabsTrigger 
-              value="recipes" 
-              className="data-[state=active]:bg-orange-100 data-[state=active]:text-orange-800 data-[state=active]:border-orange-300 hover:bg-orange-50"
+              value="grid-layout" 
+              className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 data-[state=active]:border-blue-300 hover:bg-blue-50"
             >
-              Recipes
+              <LayoutGrid className="w-4 h-4 mr-2" />
+              Grid Layout
             </TabsTrigger>
             <TabsTrigger 
               value="articles" 
@@ -153,7 +167,27 @@ export default function AdminDashboard() {
             >
               Articles
             </TabsTrigger>
+            <TabsTrigger 
+              value="recipes" 
+              className="data-[state=active]:bg-orange-100 data-[state=active]:text-orange-800 data-[state=active]:border-orange-300 hover:bg-orange-50"
+            >
+              Recipes
+            </TabsTrigger>
+            <TabsTrigger 
+              value="images" 
+              className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-800 data-[state=active]:border-purple-300 hover:bg-purple-50"
+            >
+              <Image className="w-4 h-4 mr-2" />
+              Images
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="grid-layout" className="space-y-4">
+            <CardDashboard 
+              onCreateContent={(type) => router.push(`/admin-panel/${type === 'article' ? 'articles' : 'recipes'}/new`)}
+              onEditContent={(type, id) => router.push(`/admin-panel/${type === 'article' ? 'articles' : 'recipes'}/edit/${id}`)}
+            />
+          </TabsContent>
 
           <TabsContent value="recipes" className="space-y-4">
             <div className="flex justify-between items-center">
@@ -197,10 +231,20 @@ export default function AdminDashboard() {
           <TabsContent value="articles" className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Article Management</h3>
-              <Button onClick={() => router.push('/admin-panel/articles/new')}>
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Add Article
-              </Button>
+              <div className="flex space-x-2">
+                <Button 
+                  onClick={() => setShowAIModal(true)}
+                  variant="outline"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate with AI
+                </Button>
+                <Button onClick={() => router.push('/admin-panel/articles/new')}>
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add Manually
+                </Button>
+              </div>
             </div>
             <Card>
               <CardHeader>
@@ -254,8 +298,25 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="images" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Image Library</h3>
+              <div className="text-sm text-gray-500">
+                Professional image management with Cloudflare R2
+              </div>
+            </div>
+            <ImageLibrary />
+          </TabsContent>
         </Tabs>
       </main>
+
+      {/* AI Generation Modal */}
+      <AIGenerationModal
+        isOpen={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        onGenerate={handleAIGenerate}
+      />
     </div>
   )
 }

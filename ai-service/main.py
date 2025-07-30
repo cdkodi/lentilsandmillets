@@ -106,8 +106,24 @@ async def generate_article(
         await db_service.update_generation_session(
             session_id=session.id,
             status="completed",
-            metadata=result.metadata
+            metadata=result["metadata"]
         )
+        
+        # Save article to CMS
+        try:
+            # Convert Pydantic models to dictionaries
+            article_dict = result["article"].dict() if hasattr(result["article"], 'dict') else result["article"]
+            metadata_dict = result["metadata"].dict() if hasattr(result["metadata"], 'dict') else result["metadata"]
+            
+            cms_article_id = await db_service.save_article_to_cms(
+                session_id=session.id,
+                article_data=article_dict,
+                metadata=metadata_dict
+            )
+            logger.info(f"Article saved to CMS with ID: {cms_article_id}")
+        except Exception as e:
+            logger.error(f"Failed to save article to CMS: {str(e)}")
+            # Continue execution - the article generation was successful
         
         # Schedule background tasks for analytics
         background_tasks.add_task(
@@ -121,8 +137,8 @@ async def generate_article(
         return ArticleGenerationResponse(
             success=True,
             session_id=session.id,
-            article=result.article,
-            metadata=result.metadata
+            article=result["article"],
+            metadata=result["metadata"]
         )
         
     except Exception as e:
@@ -183,8 +199,32 @@ async def generate_content(
         await db_service.update_generation_session(
             session_id=session.id,
             status="completed",
-            metadata=result.metadata
+            metadata=result["metadata"]
         )
+        
+        # Save to CMS based on content type
+        try:
+            # Convert Pydantic models to dictionaries
+            article_dict = result["article"].dict() if hasattr(result["article"], 'dict') else result["article"]
+            metadata_dict = result["metadata"].dict() if hasattr(result["metadata"], 'dict') else result["metadata"]
+            
+            if request.content_type == "recipe":
+                cms_id = await db_service.save_recipe_to_cms(
+                    session_id=session.id,
+                    recipe_data=article_dict,  # Recipe data is stored in "article" key for compatibility
+                    metadata=metadata_dict
+                )
+                logger.info(f"Recipe saved to CMS with ID: {cms_id}")
+            else:  # article
+                cms_id = await db_service.save_article_to_cms(
+                    session_id=session.id,
+                    article_data=article_dict,
+                    metadata=metadata_dict
+                )
+                logger.info(f"Article saved to CMS with ID: {cms_id}")
+        except Exception as e:
+            logger.error(f"Failed to save {request.content_type} to CMS: {str(e)}")
+            # Continue execution - the generation was successful
         
         # Schedule background tasks for analytics
         background_tasks.add_task(
@@ -198,8 +238,8 @@ async def generate_content(
         return ArticleGenerationResponse(
             success=True,
             session_id=session.id,
-            article=result.article,
-            metadata=result.metadata
+            article=result["article"],
+            metadata=result["metadata"]
         )
         
     except Exception as e:
@@ -276,20 +316,56 @@ async def save_as_draft(
                 detail="No generated content found for this session"
             )
         
-        # Save to CMS as draft
-        cms_content_id = await db_service.save_as_cms_draft(
-            session=session_data,
-            generated_content=json.loads(session_data['generated_data']),
-            user_id=current_user["id"]
-        )
+        # Check if already saved to CMS
+        if session_data.get('cms_article_id') or session_data.get('cms_recipe_id'):
+            cms_id = session_data.get('cms_article_id') or session_data.get('cms_recipe_id')
+            content_type = "article" if session_data.get('cms_article_id') else "recipe"
+            
+            return {
+                "success": True,
+                "cms_content_id": cms_id,
+                "content_type": content_type,
+                "message": f"Content already saved as CMS {content_type} (ID: {cms_id})"
+            }
         
-        logger.info(f"Saved session {session_id} as CMS draft {cms_content_id}")
-        
-        return {
-            "success": True,
-            "cms_content_id": cms_content_id,
-            "message": "Content saved as draft successfully"
-        }
+        # If not saved yet and has generated data, save it now
+        if session_data.get('generated_data'):
+            try:
+                generated_content = json.loads(session_data['generated_data'])
+                content_type = session_data.get('content_type', 'article')
+                
+                if content_type == "recipe":
+                    cms_id = await db_service.save_recipe_to_cms(
+                        session_id=session_id,
+                        recipe_data=generated_content["recipe"],
+                        metadata=generated_content["metadata"]
+                    )
+                else:
+                    cms_id = await db_service.save_article_to_cms(
+                        session_id=session_id,
+                        article_data=generated_content["article"],
+                        metadata=generated_content["metadata"]
+                    )
+                
+                logger.info(f"Manually saved session {session_id} as CMS {content_type} {cms_id}")
+                
+                return {
+                    "success": True,
+                    "cms_content_id": cms_id,
+                    "content_type": content_type,
+                    "message": f"Content saved as CMS {content_type} successfully"
+                }
+            except Exception as save_error:
+                logger.error(f"Failed to save content to CMS: {str(save_error)}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to save content to CMS: {str(save_error)}"
+                )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="No generated content found for this session"
+            )
         
     except Exception as e:
         logger.error(f"Failed to save draft for session {session_id}: {str(e)}")

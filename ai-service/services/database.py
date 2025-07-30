@@ -548,3 +548,167 @@ class DatabaseService:
             
         except Exception as e:
             logger.error(f"Failed to track analytics for session {session_id}: {str(e)}")
+    
+    async def save_article_to_cms(
+        self,
+        session_id: int,
+        article_data: Dict[str, Any], 
+        metadata: Dict[str, Any],
+        card_position: str = None
+    ) -> int:
+        """Save generated article to CMS cms_articles table"""
+        try:
+            cursor = self.connection.cursor()
+            
+            # Determine category from article content or metadata
+            category = "lentils"  # Default
+            if "millet" in article_data.get("title", "").lower():
+                category = "millets"
+            
+            # Auto-assign card position if not provided
+            if not card_position:
+                if category == "lentils":
+                    # Find next available lentil position (L1-L8)
+                    cursor.execute("""
+                        SELECT card_position FROM cms_articles 
+                        WHERE card_position LIKE 'L%' 
+                        ORDER BY card_position
+                    """)
+                    used_positions = [row['card_position'] for row in cursor.fetchall()]
+                    for i in range(1, 9):  # L1-L8
+                        pos = f"L{i}"
+                        if pos not in used_positions:
+                            card_position = pos
+                            break
+                    # Fallback if all positions are taken
+                    if not card_position:
+                        card_position = f"L{len(used_positions) + 1}"
+                else:
+                    # Find next available millet position (M1-M8)
+                    cursor.execute("""
+                        SELECT card_position FROM cms_articles 
+                        WHERE card_position LIKE 'M%' 
+                        ORDER BY card_position
+                    """)
+                    used_positions = [row['card_position'] for row in cursor.fetchall()]
+                    for i in range(1, 9):  # M1-M8
+                        pos = f"M{i}"
+                        if pos not in used_positions:
+                            card_position = pos
+                            break
+                    # Fallback if all positions are taken
+                    if not card_position:
+                        card_position = f"M{len(used_positions) + 1}"
+            
+            # Insert article into cms_articles table
+            cursor.execute("""
+                INSERT INTO cms_articles (
+                    title, slug, content, excerpt, author, category, 
+                    card_position, meta_title, meta_description, 
+                    status, published_at, created_at, updated_at
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW()
+                )
+                RETURNING id
+            """, (
+                article_data.get("title"),
+                article_data.get("slug"),
+                article_data.get("content"),
+                article_data.get("excerpt"),
+                "AI Assistant",  # Author
+                category,
+                card_position,
+                article_data.get("meta_title"),
+                article_data.get("meta_description"),
+                "draft",  # Status - save as draft initially
+                None  # published_at - will be set when published
+            ))
+            
+            cms_article_id = cursor.fetchone()['id']
+            
+            # Update the generation session with the CMS article ID
+            cursor.execute("""
+                UPDATE ai_generation_sessions 
+                SET cms_article_id = %s, 
+                    generated_data = %s,
+                    updated_at = NOW()
+                WHERE id = %s
+            """, (cms_article_id, json.dumps({
+                "article": article_data,
+                "metadata": metadata
+            }, default=str), session_id))
+            
+            self.connection.commit()
+            cursor.close()
+            
+            logger.info(f"Saved article to CMS: Article ID {cms_article_id}, Card Position {card_position}")
+            return cms_article_id
+            
+        except Exception as e:
+            if cursor:
+                cursor.close()
+            logger.error(f"Failed to save article to CMS: {str(e)}")
+            raise e
+    
+    async def save_recipe_to_cms(
+        self,
+        session_id: int,
+        recipe_data: Dict[str, Any], 
+        metadata: Dict[str, Any]
+    ) -> int:
+        """Save generated recipe to CMS cms_recipes table"""
+        try:
+            cursor = self.connection.cursor()
+            
+            # Insert recipe into cms_recipes table
+            cursor.execute("""
+                INSERT INTO cms_recipes (
+                    title, slug, description, prep_time, cook_time, 
+                    servings, difficulty, ingredients, instructions,
+                    nutritional_highlights, dietary_tags, author,
+                    status, created_at, updated_at
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW()
+                )
+                RETURNING id
+            """, (
+                recipe_data.get("title"),
+                recipe_data.get("slug"),
+                recipe_data.get("excerpt", ""),
+                recipe_data.get("prep_time", 15),
+                recipe_data.get("cook_time", 30),
+                recipe_data.get("servings", 4),
+                recipe_data.get("difficulty", "easy"),
+                json.dumps(recipe_data.get("ingredients", [])),
+                json.dumps(recipe_data.get("instructions", [])),
+                json.dumps(recipe_data.get("nutritional_highlights", [])),
+                json.dumps(recipe_data.get("dietary_tags", ["plant-based"])),
+                "AI Assistant",
+                "draft"
+            ))
+            
+            cms_recipe_id = cursor.fetchone()['id']
+            
+            # Update the generation session with the CMS recipe ID
+            cursor.execute("""
+                UPDATE ai_generation_sessions 
+                SET cms_recipe_id = %s,
+                    generated_data = %s,
+                    updated_at = NOW()
+                WHERE id = %s
+            """, (cms_recipe_id, json.dumps({
+                "recipe": recipe_data,
+                "metadata": metadata
+            }, default=str), session_id))
+            
+            self.connection.commit()
+            cursor.close()
+            
+            logger.info(f"Saved recipe to CMS: Recipe ID {cms_recipe_id}")
+            return cms_recipe_id
+            
+        except Exception as e:
+            if cursor:
+                cursor.close()
+            logger.error(f"Failed to save recipe to CMS: {str(e)}")
+            raise e
